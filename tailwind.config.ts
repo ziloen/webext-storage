@@ -75,6 +75,10 @@ export default {
           'flex-direction': 'column',
         },
 
+        '.outline-solid': {
+          'outline-style': 'solid',
+        },
+
         // Scrollbar
         '.scrollbar-none': {
           'scrollbar-width': 'none',
