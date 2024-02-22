@@ -11,6 +11,11 @@ export default {
       transparent: 'transparent',
       black: '#000',
       white: '#fff',
+
+      foreground: '#cccccc',
+      iconForeground: '#c5c5c5',
+      mainBackground: '#1e2227',
+      toolbarHoverBackground: 'rgba(90, 93, 94, 0.31)',
     },
 
     lineHeight: {
