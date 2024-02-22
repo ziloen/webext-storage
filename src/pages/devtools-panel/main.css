@@ -1,0 +1,5 @@
+html,
+body {
+  background-color: #1e2227;
+  @apply font-mono;
+}
