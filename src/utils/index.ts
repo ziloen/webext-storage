@@ -40,17 +40,26 @@ function extensionPageInject(chrome: typeof browser, runtimeId: string) {
         areaName: 'sync' | 'local' | 'managed' | 'session'
         method: 'clear' | 'get' | 'remove' | 'set'
         args: unknown[]
+        id: string
       },
       port: Runtime.Port
     ) => {
-      const { areaName, method, args } = message
+      const { areaName, method, args, id } = message
 
       try {
         // @ts-expect-error
         const result = await chrome.storage[areaName][method](...args)
-        port.postMessage({ type: 'forward-storage', data: result })
+        port.postMessage({
+          type: 'forward-storage',
+          data: result,
+          id,
+        })
       } catch (error) {
-        port.postMessage({ error: serializeError(error) })
+        port.postMessage({
+          type: 'forward-storage',
+          error: serializeError(error),
+          id,
+        })
       }
     }
   )
@@ -61,26 +70,37 @@ export async function getProxyStorage(extensionId: string) {
     browser.runtime.onConnectExternal.addListener(port => {
       if (port.sender?.id !== extensionId) return
 
+      const deferMap = new Map<string, PromiseWithResolvers<unknown>>()
+
       port.onMessage.addListener(message => {
-        console.log('message', message)
+        if (message.type === 'forward-storage') {
+          const id = message.id
+          const defer = deferMap.get(id)
+          if (defer) {
+            if (message.error) {
+              defer.reject(message.error)
+            } else {
+              defer.resolve(message.data)
+            }
+            deferMap.delete(id)
+          }
+        }
       })
 
       const proxyStorage = new Proxy({} as Storage.Static, {
-        get(target, areaName) {
+        get(_, areaName) {
           return new Proxy(
             {},
             {
-              get(target, method) {
+              get(_, method) {
                 return function (...args: unknown[]) {
-                  return new Promise((resolve, reject) => {
-                    if (!port) {
-                      return reject(new Error('Port is not connected'))
-                    }
+                  const defer = Promise.withResolvers()
+                  const id = crypto.randomUUID()
 
-                    port.postMessage({ areaName, method, args })
+                  deferMap.set(id, defer)
+                  port.postMessage({ areaName, method, args, id })
 
-                    port.onMessage.addListener(() => {})
-                  })
+                  return defer.promise
                 }
               },
             }

@@ -1,8 +1,10 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { CodiconCollapseAll, CodiconExpandAll } from '~/icons'
 import { evalFn, getProxyStorage } from '~/utils'
 
 export function App() {
+  const [targetState, setTargetState] = useState<Record<string, unknown>>()
+
   useEffect(() => {
     // getProxyStorage()
     evalFn(chrome => {
@@ -20,9 +22,14 @@ export function App() {
       console.log('extensionId', extensionId)
 
       if (extensionId) {
-        const storage = getProxyStorage(extensionId)
-
-        console.log('storage', storage)
+        getProxyStorage(extensionId).then(storage => {
+          storage.local
+            .get(null)
+            .then(data => {
+              setTargetState(data)
+            })
+            .catch(err => {})
+        })
       }
     })
     browser.devtools.inspectedWindow.tabId
@@ -59,6 +66,8 @@ export function App() {
           <CodiconCollapseAll className="text-[16px]" />
         </button>
       </div>
+
+      {targetState && <span>{JSON.stringify(targetState, null, 2)}</span>}
     </div>
   )
 }

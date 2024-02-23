@@ -16,5 +16,6 @@
   ],
   "eslint.experimental.useFlatConfig": true,
   "eslint.format.enable": false,
-  "prettier.enable": false
+  "prettier.enable": false,
+  "typescript.tsdk": "node_modules\\typescript\\lib"
 }

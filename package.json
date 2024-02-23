@@ -23,6 +23,7 @@
     "fs-extra": "11.2.0",
     "tailwindcss": "0.0.0-insiders.598bdc8",
     "ts-lib-enhance": "1.0.16",
+    "typescript": "5.4.1-rc",
     "ulid": "2.3.0",
     "unplugin-auto-import": "0.17.5",
     "web-ext": "7.11.0",
