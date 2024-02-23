@@ -26,9 +26,9 @@ export function getManifest() {
     background: isFirefoxEnv
       ? { scripts: ['./background/mian.js'], type: 'module' }
       : { service_worker: './background/main.js', type: 'module' },
-    permissions: [] as Permissions[],
+    permissions: ['devtools'] as Permissions[],
+    host_permissions: ['<all_urls>'],
     optional_permissions: [] as OptionalPermissions[],
-
     devtools_page: './devtools/index.html',
   }
 

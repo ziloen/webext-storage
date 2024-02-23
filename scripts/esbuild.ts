@@ -46,11 +46,12 @@ const options: BuildOptions = {
       ],
       imports: [
         {
-          'webextension-polyfill': [['*', 'browser']],
+          'webextension-polyfill': [['default', 'browser']],
           ulid: ['ulid'],
         },
       ],
       dts: r('src/types/auto-imports.d.ts'),
+      ignoreDts: ['browser'],
     }) as Plugin,
 
     CopyPlugin({

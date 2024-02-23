@@ -1,1 +1,4 @@
-browser.runtime.onInstalled.addListener(() => {})
+browser.runtime.onConnectExternal.addListener(port => {
+
+  port.sender
+})

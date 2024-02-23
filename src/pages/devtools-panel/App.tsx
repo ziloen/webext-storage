@@ -1,6 +1,33 @@
+import { useEffect } from 'react'
 import { CodiconCollapseAll, CodiconExpandAll } from '~/icons'
+import { evalFn, getProxyStorage } from '~/utils'
 
 export function App() {
+  useEffect(() => {
+    // getProxyStorage()
+    evalFn(chrome => {
+      const location = document.location
+      if (
+        !location ||
+        location.protocol === 'chrome-extension:' ||
+        location.protocol === 'moz-extension:'
+      ) {
+        return chrome.runtime.id
+      }
+
+      return
+    }).then(extensionId => {
+      console.log('extensionId', extensionId)
+
+      if (extensionId) {
+        const storage = getProxyStorage(extensionId)
+
+        console.log('storage', storage)
+      }
+    })
+    browser.devtools.inspectedWindow.tabId
+  }, [])
+
   return (
     <div className="size-full font-mono flex-column text-[14px] bg-mainBackground p-4 text-iconForeground">
       <div className="flex gap-[12px]">
@@ -29,7 +56,7 @@ export function App() {
             backgroundPosition: '50%',
           }}
         >
-          <CodiconCollapseAll className='text-[16px]' />
+          <CodiconCollapseAll className="text-[16px]" />
         </button>
       </div>
     </div>
