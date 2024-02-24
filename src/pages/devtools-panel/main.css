@@ -4,4 +4,11 @@ body {
   width: 100%;
   height: 100%;
   contain: paint;
+
+  color-scheme: dark;
+}
+
+
+.test {
+  color: #abb2bf;
 }

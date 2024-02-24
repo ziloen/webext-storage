@@ -15,7 +15,13 @@ export default {
       foreground: '#cccccc',
       iconForeground: '#c5c5c5',
       mainBackground: '#1e2227',
-      toolbarHoverBackground: 'rgba(90, 93, 94, 0.31)',
+      'toolbar.hoverBackground': 'rgba(90, 93, 94, 0.31)',
+
+      'scrollbarSlider.background': 'rgba(78, 86, 102, 0.38)',
+      'scrollbarSlider.hoverBackground': 'rgba(90, 99, 117, 0.5)',
+      'scrollbarSlider.activeBackground': 'rgba(116, 125, 145, 0.5)',
+      'button.background': '#404754',
+      'button.hoverBackground': '#4d5565',
     },
 
     lineHeight: {
@@ -55,7 +61,7 @@ export default {
   // https://github.com/tailwindlabs/tailwindcss/blob/master/src/corePlugins.js
   corePlugins: {},
   plugins: [
-    function ({ addUtilities, matchUtilities }: PluginAPI) {
+    function ({ addUtilities, matchUtilities, theme }: PluginAPI) {
       addUtilities({
         // Flex
         '.flex-center': {
@@ -119,6 +125,12 @@ export default {
         '.justify-safe-end': {
           'justify-content': 'safe end',
         },
+
+        '.webkit-scrollbar-button-none': {
+          '&::-webkit-scrollbar-button': {
+            display: 'none',
+          },
+        },
       })
 
       matchUtilities(
@@ -140,7 +152,6 @@ export default {
         {
           type: 'length',
           values: {
-            DEFAULT: '4px',
             1: '4px',
             2: '8px',
           },
@@ -155,9 +166,49 @@ export default {
             },
           }),
         },
-        { type: ['color', 'any'] }
+        { type: ['color', 'any'], values: theme('colors', {}) }
       )
 
+      matchUtilities(
+        {
+          'webkit-scrollbar-hover': value => ({
+            '&::-webkit-scrollbar-thumb:hover': {
+              backgroundColor: value,
+            },
+          }),
+        },
+        { type: ['color', 'any'], values: theme('colors', {}) }
+      )
+
+      matchUtilities(
+        {
+          'webkit-scrollbar-active': value => ({
+            '&::-webkit-scrollbar-thumb:active': {
+              backgroundColor: value,
+            },
+          }),
+        },
+        { type: ['color', 'any'], values: theme('colors', {}) }
+      )
+
+      matchUtilities(
+        {
+          'webkit-scrollbar-size': value => ({
+            '&::-webkit-scrollbar': {
+              width: value,
+              height: value,
+            },
+          }),
+        },
+        {
+          type: 'length',
+          values: {
+            DEFAULT: '4px',
+            1: '4px',
+            2: '8px',
+          },
+        }
+      )
       // add margin to scrollbar
       // Notice: this will cause some side effects
       matchUtilities(

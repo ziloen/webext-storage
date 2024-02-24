@@ -72,6 +72,19 @@ export async function getProxyStorage(extensionId: string) {
 
       const deferMap = new Map<string, PromiseWithResolvers<unknown>>()
 
+      type ChangedCallback = (
+        changes: Record<string, Storage.StorageChange>
+      ) => void
+
+      type AreaName = 'local' | 'sync' | 'managed' | 'session'
+
+      const listenersMap = {
+        local: new Set<ChangedCallback>(),
+        sync: new Set<ChangedCallback>(),
+        managed: new Set<ChangedCallback>(),
+        session: new Set<ChangedCallback>(),
+      }
+
       port.onMessage.addListener(message => {
         if (message.type === 'forward-storage') {
           const id = message.id
@@ -84,15 +97,33 @@ export async function getProxyStorage(extensionId: string) {
             }
             deferMap.delete(id)
           }
+        } else if (message.type === 'changed') {
+          const { changes, areaName } = message.data as {
+            changes: Record<string, Storage.StorageChange>
+            areaName: AreaName
+          }
+
+          listenersMap[areaName]?.forEach(listener => listener(changes))
         }
       })
 
       const proxyStorage = new Proxy({} as Storage.Static, {
-        get(_, areaName) {
+        get(_, areaName: AreaName) {
           return new Proxy(
             {},
             {
               get(_, method) {
+                if (method === 'onChanged') {
+                  return {
+                    addListener(listener: ChangedCallback) {
+                      listenersMap[areaName]?.add(listener)
+                    },
+                    removeListener(listener: ChangedCallback) {
+                      listenersMap[areaName]?.delete(listener)
+                    },
+                  }
+                }
+
                 return function (...args: unknown[]) {
                   const defer = Promise.withResolvers()
                   const id = crypto.randomUUID()
