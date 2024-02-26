@@ -1,3 +1,4 @@
+import { pluginCreator } from '@ziloen/tailwind-config'
 import type { Config } from 'tailwindcss'
 import type { PluginAPI } from 'tailwindcss/types/config'
 
@@ -12,16 +13,16 @@ export default {
       black: '#000',
       white: '#fff',
 
+      'button.background': '#404754',
+      'button.hoverBackground': '#4d5565',
+      'editor.findMatchHighlightBackground': 'rgba(97, 153, 255, 0.18)',
+      'scrollbarSlider.activeBackground': 'rgba(116, 125, 145, 0.5)',
+      'scrollbarSlider.background': 'rgba(78, 86, 102, 0.38)',
+      'scrollbarSlider.hoverBackground': 'rgba(90, 99, 117, 0.5)',
+      'toolbar.hoverBackground': 'rgba(90, 93, 94, 0.31)',
       foreground: '#cccccc',
       iconForeground: '#c5c5c5',
       mainBackground: '#1e2227',
-      'toolbar.hoverBackground': 'rgba(90, 93, 94, 0.31)',
-
-      'scrollbarSlider.background': 'rgba(78, 86, 102, 0.38)',
-      'scrollbarSlider.hoverBackground': 'rgba(90, 99, 117, 0.5)',
-      'scrollbarSlider.activeBackground': 'rgba(116, 125, 145, 0.5)',
-      'button.background': '#404754',
-      'button.hoverBackground': '#4d5565',
     },
 
     lineHeight: {
@@ -60,206 +61,5 @@ export default {
   // https://tailwindcss.com/docs/theme#configuration-reference
   // https://github.com/tailwindlabs/tailwindcss/blob/master/src/corePlugins.js
   corePlugins: {},
-  plugins: [
-    function ({ addUtilities, matchUtilities, theme }: PluginAPI) {
-      addUtilities({
-        // Flex
-        '.flex-center': {
-          display: 'flex',
-          'justify-content': 'center',
-          'align-items': 'center',
-        },
-        '.flex-justify': {
-          display: 'flex',
-          'justify-content': 'center',
-        },
-        '.flex-align': {
-          display: 'flex',
-          'align-items': 'center',
-        },
-        '.flex-between': {
-          display: 'flex',
-          'justify-content': 'space-between',
-        },
-        '.flex-column': {
-          display: 'flex',
-          'flex-direction': 'column',
-        },
-
-        '.outline-solid': {
-          'outline-style': 'solid',
-        },
-
-        // Scrollbar
-        '.scrollbar-none': {
-          'scrollbar-width': 'none',
-          '&::-webkit-scrollbar': {
-            display: 'none',
-          },
-        },
-        '.scrollbar-thin': {
-          'scrollbar-width': 'thin',
-        },
-
-        // Leading trim simulate
-        // text-box-trim: both;
-        // https://caniuse.com/css-text-box-trim
-        // (1lh - 1em) / 2 * -1
-        '.leading-trim-both': {
-          'margin-block': 'calc(0.5em - 0.5lh)',
-        },
-        '.leading-trim-start': {
-          'margin-block-start': 'calc(0.5em - 0.5lh)',
-        },
-        '.leading-trim-end': {
-          'margin-block-end': 'calc(0.5em - 0.5lh)',
-        },
-
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/justify-content#safe
-        '.justify-safe-center': {
-          'justify-content': 'safe center',
-        },
-        '.justify-safe-start': {
-          'justify-content': 'safe start',
-        },
-        '.justify-safe-end': {
-          'justify-content': 'safe end',
-        },
-
-        '.webkit-scrollbar-button-none': {
-          '&::-webkit-scrollbar-button': {
-            display: 'none',
-          },
-        },
-      })
-
-      matchUtilities(
-        {
-          'webkit-scrollbar': value => ({
-            '&::-webkit-scrollbar-button': {
-              display: 'none',
-            },
-            '&::-webkit-scrollbar-thumb': {
-              borderRadius: '9999px',
-            },
-            '&::-webkit-scrollbar': {
-              width: value,
-              height: value,
-              borderRadius: '9999px',
-            },
-          }),
-        },
-        {
-          type: 'length',
-          values: {
-            1: '4px',
-            2: '8px',
-          },
-        }
-      )
-
-      matchUtilities(
-        {
-          'webkit-scrollbar': value => ({
-            '&::-webkit-scrollbar-thumb': {
-              backgroundColor: value,
-            },
-          }),
-        },
-        { type: ['color', 'any'], values: theme('colors', {}) }
-      )
-
-      matchUtilities(
-        {
-          'webkit-scrollbar-hover': value => ({
-            '&::-webkit-scrollbar-thumb:hover': {
-              backgroundColor: value,
-            },
-          }),
-        },
-        { type: ['color', 'any'], values: theme('colors', {}) }
-      )
-
-      matchUtilities(
-        {
-          'webkit-scrollbar-active': value => ({
-            '&::-webkit-scrollbar-thumb:active': {
-              backgroundColor: value,
-            },
-          }),
-        },
-        { type: ['color', 'any'], values: theme('colors', {}) }
-      )
-
-      matchUtilities(
-        {
-          'webkit-scrollbar-size': value => ({
-            '&::-webkit-scrollbar': {
-              width: value,
-              height: value,
-            },
-          }),
-        },
-        {
-          type: 'length',
-          values: {
-            DEFAULT: '4px',
-            1: '4px',
-            2: '8px',
-          },
-        }
-      )
-      // add margin to scrollbar
-      // Notice: this will cause some side effects
-      matchUtilities(
-        {
-          'webkit-scrollbar-m': value => ({
-            '&::-webkit-scrollbar-track': {
-              margin: value,
-            },
-          }),
-          'webkit-scrollbar-mx': value => ({
-            '&::-webkit-scrollbar-track': {
-              'margin-left': value,
-              'margin-right': value,
-            },
-          }),
-          'webkit-scrollbar-my': value => ({
-            '&::-webkit-scrollbar-track': {
-              'margin-top': value,
-              'margin-bottom': value,
-            },
-          }),
-          'webkit-scrollbar-mt': value => ({
-            '&::-webkit-scrollbar-track': {
-              'margin-top': value,
-            },
-          }),
-          'webkit-scrollbar-mb': value => ({
-            '&::-webkit-scrollbar-track': {
-              'margin-bottom': value,
-            },
-          }),
-          'webkit-scrollbar-ml': value => ({
-            '&::-webkit-scrollbar-track': {
-              'margin-left': value,
-            },
-          }),
-          'webkit-scrollbar-mr': value => ({
-            '&::-webkit-scrollbar-track': {
-              'margin-right': value,
-            },
-          }),
-        },
-        {
-          type: 'length',
-          values: {
-            1: '4px',
-            2: '8px',
-            3: '12px',
-          },
-        }
-      )
-    },
-  ],
+  plugins: [pluginCreator],
 } satisfies Config

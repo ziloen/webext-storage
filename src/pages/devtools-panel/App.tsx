@@ -40,56 +40,103 @@ export function App() {
   }, [])
 
   return (
-    <div className="size-full font-mono flex-column text-[14px] bg-mainBackground text-foreground">
-      <div className="flex-align gap-[12px] px-[8px] h-[40px]">
-        <input
-          className="bg-[#1d1f23] focus-visible:outline-[#3e4452] focus-visible:outline-solid h-[24px] text-[#abb2bf] py-[3px] ps-[6px] placeholder:text-[#cccccc80] leading-[1.4em]"
-          type="text"
-          placeholder="Search"
-        />
+    <CtxProvider>
+      <div className="size-full font-sans flex-column text-[14px] bg-mainBackground text-foreground">
+        <div className="flex-align gap-[12px] px-[8px] h-[40px]">
+          <SearchInput />
 
-        <div className="px-2 py-1 bg-button.background hover:bg-button.hoverBackground cursor-pointer">
-          storage.local
-        </div>
-        <div className="px-2 py-1 bg-button.background hover:bg-button.hoverBackground cursor-pointer">
-          storage.sync
-        </div>
-        <div className="px-2 py-1 bg-button.background hover:bg-button.hoverBackground cursor-pointer">
-          storage.session
+          <div className="px-2 py-1 bg-button.background hover:bg-button.hoverBackground cursor-pointer">
+            storage.local
+          </div>
+          <div className="px-2 py-1 bg-button.background hover:bg-button.hoverBackground cursor-pointer">
+            storage.sync
+          </div>
+          <div className="px-2 py-1 bg-button.background hover:bg-button.hoverBackground cursor-pointer">
+            storage.session
+          </div>
+
+          <button></button>
+
+          <button
+            className="flex-center box-content rounded-[5px] size-[16px] ms-auto p-[3px] disabled:opacity-60 cursor-pointer disabled:cursor-default [&:not(:disabled)]:hover:bg-toolbar.hoverBackground"
+            style={{
+              backgroundSize: '16px',
+              backgroundPosition: '50%',
+            }}
+          >
+            <CodiconCollapseAll className="text-[16px]" />
+          </button>
         </div>
 
-        <button></button>
-
-        <button
-          className="flex-center box-content rounded-[5px] size-[16px] ms-auto p-[3px] disabled:opacity-60 cursor-pointer disabled:cursor-default [&:not(:disabled)]:hover:bg-toolbar.hoverBackground"
-          style={{
-            backgroundSize: '16px',
-            backgroundPosition: '50%',
-          }}
-        >
-          <CodiconCollapseAll className="text-[16px]" />
-        </button>
+        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-clip  scrollbar-button:hidden scrollbar:size-[10px] scrollbar-thumb:bg-scrollbarSlider.background hover:scrollbar-thumb:bg-scrollbarSlider.hoverBackground active:scrollbar-thumb:bg-scrollbarSlider.activeBackground font-mono">
+          {targetState &&
+            Object.entries(targetState).map(([key, value], index) => {
+              return <KeyDisplay key={key} property={key} value={value} />
+            })}
+        </div>
       </div>
+    </CtxProvider>
+  )
+}
 
-      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-clip webkit-scrollbar-button-none webkit-scrollbar-size-[10px] webkit-scrollbar-scrollbarSlider.background webkit-scrollbar-hover-scrollbarSlider.hoverBackground webkit-scrollbar-active-scrollbarSlider.activeBackground">
-        {targetState &&
-          Object.entries(targetState).map(([key, value], index) => {
-            return (
-              <div
-                key={index}
-                className="flex-between h-[22px] leading-[22px] px-[12px]"
-              >
-                <div>{key}</div>
-                {/* <div>{value}</div> */}
-              </div>
-            )
-          })}
-      </div>
+function KeyDisplay({ property, value }: { property: string; value: unknown }) {
+  const searchValue = useContextSelector(Ctx, ctx =>
+    ctx.searchValue.toLocaleLowerCase()
+  )
+
+  if (searchValue && !property.toLowerCase().includes(searchValue)) {
+    return null
+  }
+
+  return (
+    <div className="flex-between h-[22px] leading-[22px] px-[12px]">
+      <div>{property}</div>
+      {/* <div>{value}</div> */}
     </div>
   )
 }
 
-const ctx = createContext({
+const Ctx = createContext({
   expandedNodes: [] as string[][],
   selectedNodes: [] as string[][],
+  searchValue: '',
+  setSearchValue: (value: string) => {},
 })
+
+function CtxProvider({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const [expandedNodes, setExpandedNodes] = useState<string[][]>([])
+  const [selectedNodes, setSelectedNodes] = useState<string[][]>([])
+  const [searchValue, setSearchValue] = useState('')
+
+  return (
+    <Ctx.Provider
+      value={{
+        expandedNodes,
+        selectedNodes,
+        searchValue,
+        setSearchValue,
+      }}
+    >
+      {children}
+    </Ctx.Provider>
+  )
+}
+
+function SearchInput() {
+  const searchValue = useContextSelector(Ctx, ctx => ctx.searchValue)
+  const setSearchValue = useContextSelector(Ctx, ctx => ctx.setSearchValue)
+
+  return (
+    <input
+      className="bg-[#1d1f23] focus-visible:outline-[#3e4452] focus-visible:outline-solid h-[24px] text-[#abb2bf] py-[3px] ps-[6px] placeholder:text-[#cccccc80] leading-[1.4em]"
+      type="text"
+      placeholder="Search"
+      value={searchValue}
+      onChange={e => setSearchValue(e.currentTarget.value)}
+    />
+  )
+}
