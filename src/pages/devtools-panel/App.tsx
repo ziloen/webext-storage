@@ -1,3 +1,7 @@
+import {
+  createContext,
+  useContextSelector,
+} from '@fluentui/react-context-selector'
 import { useEffect, useState } from 'react'
 import { CodiconCollapseAll, CodiconExpandAll } from '~/icons'
 import { evalFn, getProxyStorage } from '~/utils'
@@ -19,8 +23,6 @@ export function App() {
 
       return
     }).then(extensionId => {
-      console.log('extensionId', extensionId)
-
       if (extensionId) {
         getProxyStorage(extensionId).then(storage => {
           storage.local
@@ -39,7 +41,7 @@ export function App() {
 
   return (
     <div className="size-full font-mono flex-column text-[14px] bg-mainBackground text-foreground">
-      <div className="flex-align gap-[12px] px-[8px] h-[35px]">
+      <div className="flex-align gap-[12px] px-[8px] h-[40px]">
         <input
           className="bg-[#1d1f23] focus-visible:outline-[#3e4452] focus-visible:outline-solid h-[24px] text-[#abb2bf] py-[3px] ps-[6px] placeholder:text-[#cccccc80] leading-[1.4em]"
           type="text"
@@ -86,3 +88,8 @@ export function App() {
     </div>
   )
 }
+
+const ctx = createContext({
+  expandedNodes: [] as string[][],
+  selectedNodes: [] as string[][],
+})

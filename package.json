@@ -30,6 +30,7 @@
     "webextension-polyfill": "0.10.0"
   },
   "dependencies": {
+    "@fluentui/react-context-selector": "9.1.52",
     "axios": "1.6.7",
     "clsx": "2.1.0",
     "framer-motion": "11.0.6",
@@ -38,7 +39,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-i18next": "14.0.5",
-    "rxjs": "7.8.1",
+    "rxjs": "8.0.0-alpha.14",
     "serialize-error": "11.0.3",
     "typed-webext": "0.6.5"
   }
