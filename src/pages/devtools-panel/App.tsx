@@ -9,7 +9,13 @@ import { evalFn, getProxyStorage } from '~/utils'
 export function App() {
   const [targetState, setTargetState] = useState<Record<string, unknown>>()
   const [highlightKeys, setHighlightKeys] = useState(
-    new Map<string, ReturnType<typeof setTimeout>>()
+    new Map<
+      string,
+      [
+        type: 'added' | 'modified' | 'deleted' | 'ignored',
+        timer: ReturnType<typeof setTimeout>,
+      ]
+    >()
   )
 
   useEffect(() => {
@@ -35,27 +41,53 @@ export function App() {
             })
             .catch(err => {})
 
+          const HIGHLIGHT_TIMEOUT = 1_000
+
           storage.local.onChanged.addListener(changes => {
             setTargetState(preState => {
               const nextState = { ...preState }
               for (const [key, change] of Object.entries(changes)) {
                 if (Object.hasOwn(change, 'newValue')) {
                   nextState[key] = change.newValue
+                  const hasOld = Object.hasOwn(change, 'oldValue')
                   setHighlightKeys(pre => {
                     if (pre.has(key)) {
-                      clearTimeout(pre.get(key))
+                      clearTimeout(pre.get(key)![1])
+                    }
+                    const timeout = setTimeout(() => {
+                      hasOld &&
+                        setHighlightKeys(pre => {
+                          const next = new Map(pre)
+                          next.delete(key)
+                          return next
+                        })
+                    }, HIGHLIGHT_TIMEOUT)
+                    return new Map(pre).set(key, [
+                      hasOld ? 'modified' : 'added',
+                      timeout,
+                    ])
+                  })
+                } else {
+                  // Deleted
+                  setHighlightKeys(pre => {
+                    if (pre.has(key)) {
+                      clearTimeout(pre.get(key)![1])
                     }
                     const timeout = setTimeout(() => {
                       setHighlightKeys(pre => {
+                        if (!pre.has(key)) return pre
                         const next = new Map(pre)
-                        next.delete(key)
+                        clearInterval(pre.get(key)![1])
+                        next.set(key, [
+                          'ignored',
+                          setTimeout(() => {}, HIGHLIGHT_TIMEOUT),
+                        ])
                         return next
                       })
-                    }, 500)
-                    return new Map(pre).set(key, timeout)
+                    }, HIGHLIGHT_TIMEOUT)
+
+                    return new Map(pre).set(key, ['deleted', timeout])
                   })
-                } else {
-                  delete nextState[key]
                 }
               }
               return nextState
@@ -100,9 +132,17 @@ export function App() {
 
         <div className="min-h-0 flex-1 overflow-y-auto overflow-x-clip  scrollbar-button:hidden scrollbar:size-[10px] scrollbar-thumb:bg-scrollbarSlider.background hover:scrollbar-thumb:bg-scrollbarSlider.hoverBackground active:scrollbar-thumb:bg-scrollbarSlider.activeBackground font-mono">
           {targetState &&
-            Object.entries(targetState).map(([key, value], index) => {
-              return <KeyDisplay key={key} property={key} value={value} />
-            })}
+            Object.keys(targetState)
+              .sort()
+              .map((key, index) => {
+                return (
+                  <KeyDisplay
+                    key={key}
+                    property={key}
+                    value={targetState[key]}
+                  />
+                )
+              })}
         </div>
       </div>
     </CtxProvider>
@@ -116,8 +156,8 @@ function KeyDisplay({ property, value }: { property: string; value: unknown }) {
 
   const excludeArr = useContextSelector(Ctx, ctx => ctx.excludeArr)
 
-  const modified = useContextSelector(Ctx, ctx =>
-    ctx.modifiedKeys.has(property)
+  const status = useContextSelector(Ctx, ctx =>
+    ctx.modifiedKeys.has(property) ? ctx.modifiedKeys.get(property)![0] : null
   )
 
   const excluded = useMemo(() => {
@@ -134,10 +174,22 @@ function KeyDisplay({ property, value }: { property: string; value: unknown }) {
 
   return (
     <div
-      className="flex-between h-[22px] group leading-[22px] px-[12px] data-[modified=true]:bg-white/5"
-      data-modified={modified ? 'true' : null}
+      className="flex-between h-[22px] group leading-[22px] px-[12px] data-[status=modified]:bg-white/5 data-[status]:duration-0 duration-1000"
+      data-status={status}
+      style={{
+        transitionProperty:
+          'color, background-color, border-color, text-decoration-color, fill, stroke',
+        transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      }}
     >
-      <div className="group-data-[modified=true]:text-modifiedForeground">
+      <div
+        className="group-data-[status=modified]:text-modifiedForeground group-data-[status=added]:text-addedForeground group-data-[status=deleted]:text-deletedForeground duration-1000 group-data-[status=modified]:duration-0 group-data-[status=added]:duration-0 group-data-[status=deleted]:duration-0 group-data-[status=ignored]:text-ignoredForeground"
+        style={{
+          transitionProperty:
+            'color, background-color, border-color, text-decoration-color, fill, stroke',
+          transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+        }}
+      >
         {property}
       </div>
       {/* <div>{value}</div> */}
@@ -150,7 +202,13 @@ const Ctx = createContext({
   selectedNodes: [] as string[][],
   searchValue: '',
   setSearchValue: (value: string) => {},
-  modifiedKeys: new Map<string, ReturnType<typeof setTimeout>>(),
+  modifiedKeys: new Map<
+    string,
+    [
+      type: 'added' | 'modified' | 'deleted' | 'ignored',
+      timer: ReturnType<typeof setTimeout>,
+    ]
+  >(),
   excludeValue: '',
   excludeArr: [] as string[],
   setExcludeValue: (value: string) => {},
@@ -161,7 +219,13 @@ function CtxProvider({
   modifiedKeys,
 }: {
   children: React.ReactNode
-  modifiedKeys: Map<string, ReturnType<typeof setTimeout>>
+  modifiedKeys: Map<
+    string,
+    [
+      type: 'added' | 'modified' | 'deleted' | 'ignored',
+      timer: ReturnType<typeof setTimeout>,
+    ]
+  >
 }) {
   const [expandedNodes, setExpandedNodes] = useState<string[][]>([])
   const [selectedNodes, setSelectedNodes] = useState<string[][]>([])

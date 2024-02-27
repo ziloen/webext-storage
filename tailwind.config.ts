@@ -1,6 +1,5 @@
 import { pluginCreator } from '@ziloen/tailwind-config'
 import type { Config } from 'tailwindcss'
-import type { PluginAPI } from 'tailwindcss/types/config'
 
 export default {
   content: ['./src/**/*.{ts,tsx,html}'],
@@ -23,7 +22,11 @@ export default {
       foreground: '#cccccc',
       iconForeground: '#c5c5c5',
       mainBackground: '#1e2227',
+
+      addedForeground: '#81b88b',
       modifiedForeground: '#e2c08d',
+      deletedForeground: '#c74e39',
+      ignoredForeground: '#636b78',
     },
 
     lineHeight: {
