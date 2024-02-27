@@ -2,7 +2,7 @@ import {
   createContext,
   useContextSelector,
 } from '@fluentui/react-context-selector'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { CodiconCollapseAll, CodiconExpandAll } from '~/icons'
 import { evalFn, getProxyStorage } from '~/utils'
 
@@ -114,19 +114,21 @@ function KeyDisplay({ property, value }: { property: string; value: unknown }) {
     ctx.searchValue.toLowerCase()
   )
 
-  const excludeValue = useContextSelector(Ctx, ctx =>
-    ctx.excludeValue.toLowerCase()
-  )
+  const excludeArr = useContextSelector(Ctx, ctx => ctx.excludeArr)
 
   const modified = useContextSelector(Ctx, ctx =>
     ctx.modifiedKeys.has(property)
   )
 
-  if (searchValue && !property.toLowerCase().includes(searchValue)) {
-    return null
-  }
+  const excluded = useMemo(() => {
+    return excludeArr.some(s => property.toLowerCase().includes(s))
+  }, [excludeArr, property])
 
-  if (excludeValue && property.toLowerCase().includes(excludeValue)) {
+  const searchHidden = useMemo(() => {
+    return searchValue && !property.toLowerCase().includes(searchValue)
+  }, [property, searchValue])
+
+  if (searchHidden || excluded) {
     return null
   }
 
@@ -150,6 +152,7 @@ const Ctx = createContext({
   setSearchValue: (value: string) => {},
   modifiedKeys: new Map<string, ReturnType<typeof setTimeout>>(),
   excludeValue: '',
+  excludeArr: [] as string[],
   setExcludeValue: (value: string) => {},
 })
 
@@ -165,6 +168,13 @@ function CtxProvider({
   const [searchValue, setSearchValue] = useState('')
   const [excludeValue, setExcludeValue] = useState('')
 
+  const excludeArr = useMemo(() => {
+    return excludeValue
+      .split(',')
+      .map(s => s.trim().toLowerCase())
+      .filter(Boolean)
+  }, [excludeValue])
+
   return (
     <Ctx.Provider
       value={{
@@ -174,6 +184,7 @@ function CtxProvider({
         modifiedKeys,
         setSearchValue,
         excludeValue,
+        excludeArr,
         setExcludeValue,
       }}
     >
@@ -187,13 +198,17 @@ function SearchInput() {
   const setSearchValue = useContextSelector(Ctx, ctx => ctx.setSearchValue)
 
   return (
-    <input
-      className="bg-[#1d1f23] focus-visible:outline-[#3e4452] focus-visible:outline-solid h-[24px] text-[#abb2bf] py-[3px] ps-[6px] placeholder:text-[#cccccc80] leading-[1.4em]"
-      type="text"
-      placeholder="Search"
-      value={searchValue}
-      onChange={e => setSearchValue(e.currentTarget.value)}
-    />
+    <label className="flex-align gap-[8px]">
+      <div>Search:</div>
+
+      <input
+        className="bg-[#1d1f23] focus-visible:outline-[#3e4452] focus-visible:outline-solid h-[24px] text-[#abb2bf] py-[3px] ps-[6px] placeholder:text-[#cccccc80] leading-[1.4em]"
+        type="text"
+        placeholder="key & value"
+        value={searchValue}
+        onChange={e => setSearchValue(e.currentTarget.value)}
+      />
+    </label>
   )
 }
 
@@ -202,12 +217,16 @@ function SearchExclude() {
   const setExcludeValue = useContextSelector(Ctx, ctx => ctx.setExcludeValue)
 
   return (
-    <input
-      className="bg-[#1d1f23] focus-visible:outline-[#3e4452] focus-visible:outline-solid h-[24px] text-[#abb2bf] py-[3px] ps-[6px] placeholder:text-[#cccccc80] leading-[1.4em]"
-      type="text"
-      placeholder="Exclude key"
-      value={excludeValue}
-      onChange={e => setExcludeValue(e.currentTarget.value)}
-    />
+    <label className="flex-align gap-[8px]">
+      <div>Exclude keys:</div>
+
+      <input
+        className="bg-[#1d1f23] focus-visible:outline-[#3e4452] focus-visible:outline-solid h-[24px] text-[#abb2bf] py-[3px] ps-[6px] placeholder:text-[#cccccc80] leading-[1.4em]"
+        type="text"
+        placeholder="e.g. a, b"
+        value={excludeValue}
+        onChange={e => setExcludeValue(e.currentTarget.value)}
+      />
+    </label>
   )
 }
