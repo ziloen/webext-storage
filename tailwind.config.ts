@@ -23,6 +23,7 @@ export default {
       foreground: '#cccccc',
       iconForeground: '#c5c5c5',
       mainBackground: '#1e2227',
+      modifiedForeground: '#e2c08d',
     },
 
     lineHeight: {
