@@ -10,10 +10,10 @@
     "@types/chrome": "0.0.262",
     "@types/fs-extra": "11.0.4",
     "@types/node": "18.19.17",
-    "@types/react": "18.2.59",
+    "@types/react": "18.2.60",
     "@types/react-dom": "18.2.19",
     "@types/webextension-polyfill": "0.10.7",
-    "@ziloen/eslint-config": "0.1.18",
+    "@ziloen/eslint-config": "0.1.19",
     "@ziloen/tailwind-config": "1.0.4",
     "cross-env": "7.0.3",
     "esbuild": "0.20.1",
@@ -31,7 +31,7 @@
     "webextension-polyfill": "0.10.0"
   },
   "dependencies": {
-    "@fluentui/react-context-selector": "9.1.52",
+    "@fluentui/react-context-selector": "9.1.53",
     "axios": "1.6.7",
     "clsx": "2.1.0",
     "framer-motion": "11.0.6",
