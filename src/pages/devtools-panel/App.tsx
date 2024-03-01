@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-loop-func */
 import {
   createContext,
   useContextSelector,
@@ -5,6 +6,8 @@ import {
 import { useEffect, useMemo, useState } from 'react'
 import { CodiconCollapseAll, CodiconExpandAll } from '~/icons'
 import { evalFn, getProxyStorage } from '~/utils'
+
+const HIGHLIGHT_TIMEOUT = 1_000
 
 export function App() {
   const [targetState, setTargetState] = useState<Record<string, unknown>>()
@@ -31,72 +34,69 @@ export function App() {
       }
 
       return
-    }).then(extensionId => {
-      if (extensionId) {
-        getProxyStorage(extensionId).then(storage => {
-          storage.local
-            .get(null)
-            .then(data => {
-              setTargetState(data)
-            })
-            .catch(err => {})
+    }).then(async extensionId => {
+      if (!extensionId) return
 
-          const HIGHLIGHT_TIMEOUT = 1_000
+      const storage = await getProxyStorage(extensionId)
 
-          storage.local.onChanged.addListener(changes => {
-            setTargetState(preState => {
-              const nextState = { ...preState }
-              for (const [key, change] of Object.entries(changes)) {
-                if (Object.hasOwn(change, 'newValue')) {
-                  nextState[key] = change.newValue
-                  const hasOld = Object.hasOwn(change, 'oldValue')
-                  setHighlightKeys(pre => {
-                    if (pre.has(key)) {
-                      clearTimeout(pre.get(key)![1])
-                    }
-                    const timeout = setTimeout(() => {
-                      hasOld &&
-                        setHighlightKeys(pre => {
-                          const next = new Map(pre)
-                          next.delete(key)
-                          return next
-                        })
-                    }, HIGHLIGHT_TIMEOUT)
-                    return new Map(pre).set(key, [
-                      hasOld ? 'modified' : 'added',
-                      timeout,
-                    ])
-                  })
-                } else {
-                  // Deleted
-                  setHighlightKeys(pre => {
-                    if (pre.has(key)) {
-                      clearTimeout(pre.get(key)![1])
-                    }
-                    const timeout = setTimeout(() => {
-                      setHighlightKeys(pre => {
-                        if (!pre.has(key)) return pre
-                        const next = new Map(pre)
-                        clearInterval(pre.get(key)![1])
-                        next.set(key, [
-                          'ignored',
-                          setTimeout(() => {}, HIGHLIGHT_TIMEOUT),
-                        ])
-                        return next
-                      })
-                    }, HIGHLIGHT_TIMEOUT)
-
-                    return new Map(pre).set(key, ['deleted', timeout])
-                  })
-                }
-              }
-              return nextState
-            })
-          })
+      storage.local
+        .get(null)
+        .then(data => {
+          setTargetState(data)
         })
-      }
+        .catch(err => {})
+
+      storage.local.onChanged.addListener(changes => {
+        setTargetState(preState => {
+          const nextState = { ...preState }
+          for (const [key, change] of Object.entries(changes)) {
+            if (Object.hasOwn(change, 'newValue')) {
+              nextState[key] = change.newValue
+              const hasOld = Object.hasOwn(change, 'oldValue')
+              setHighlightKeys(pre => {
+                if (pre.has(key)) {
+                  clearTimeout(pre.get(key)![1])
+                }
+                const timeout = setTimeout(() => {
+                  hasOld &&
+                    setHighlightKeys(pre => {
+                      const next = new Map(pre)
+                      next.delete(key)
+                      return next
+                    })
+                }, HIGHLIGHT_TIMEOUT)
+                return new Map(pre).set(key, [
+                  hasOld ? 'modified' : 'added',
+                  timeout,
+                ])
+              })
+            } else {
+              // Deleted
+              setHighlightKeys(pre => {
+                if (pre.has(key)) {
+                  clearTimeout(pre.get(key)![1])
+                }
+                const timeout = setTimeout(() => {
+                  setHighlightKeys(pre => {
+                    if (!pre.has(key)) return pre
+                    const next = new Map(pre)
+                    clearInterval(pre.get(key)![1])
+                    next.set(key, [
+                      'ignored',
+                      setTimeout(() => {}, HIGHLIGHT_TIMEOUT),
+                    ])
+                    return next
+                  })
+                }, HIGHLIGHT_TIMEOUT)
+
+                return new Map(pre).set(key, ['deleted', timeout])
+              })
+            }
+          }
+          return nextState
+        })
+      })
     })
-    browser.devtools.inspectedWindow.tabId
   }, [])
 
   return (
@@ -110,14 +110,6 @@ export function App() {
           <div className="px-2 py-1 bg-button.background hover:bg-button.hoverBackground cursor-pointer">
             storage.local
           </div>
-          <div className="px-2 py-1 bg-button.background hover:bg-button.hoverBackground cursor-pointer">
-            storage.sync
-          </div>
-          <div className="px-2 py-1 bg-button.background hover:bg-button.hoverBackground cursor-pointer">
-            storage.session
-          </div>
-
-          <button></button>
 
           <button
             className="flex-center box-content rounded-[5px] size-[16px] ms-auto p-[3px] disabled:opacity-60 cursor-pointer disabled:cursor-default [&:not(:disabled)]:hover:bg-toolbar.hoverBackground"

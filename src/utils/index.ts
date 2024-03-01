@@ -1,17 +1,17 @@
 import { serializeError } from 'serialize-error'
 import type { Runtime, Storage } from 'webextension-polyfill'
 
-export async function evalFn<A extends unknown[]>(
-  closure: (chrome: typeof browser, ...args: A) => void,
-  ...args: A
+export async function evalFn<Args extends unknown[], Return>(
+  closure: (chrome: typeof browser, ...args: Args) => Return,
+  ...args: Args
 ) {
   const code = `(${closure.toString()})(chrome, ${args
     .map(_ => JSON.stringify(_))
     .join(', ')})`
 
-  // const result = await polyfillEval(code)
   const result = await browser.devtools.inspectedWindow.eval(code)
-  const [value, info] = result
+  const value = result[0] as Return
+  const info = result[1]
 
   if (info && (info.isError || info.isException)) {
     throw new Error(info.value || info.description)
@@ -32,7 +32,7 @@ function extensionPageInject(chrome: typeof browser, runtimeId: string) {
         })
       })
     }
-  } catch (error) {}
+  } catch {}
 
   port.onMessage.addListener(
     async (
@@ -47,7 +47,7 @@ function extensionPageInject(chrome: typeof browser, runtimeId: string) {
       const { areaName, method, args, id } = message
 
       try {
-        // @ts-expect-error
+        // @ts-expect-error just ignore it
         const result = await chrome.storage[areaName][method](...args)
         port.postMessage({
           type: 'forward-storage',
