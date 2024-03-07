@@ -1,4 +1,3 @@
-import { serializeError } from 'serialize-error'
 import type { Runtime, Storage } from 'webextension-polyfill'
 
 export async function evalFn<Args extends unknown[], Return>(
@@ -57,7 +56,7 @@ function extensionPageInject(chrome: typeof browser, runtimeId: string) {
       } catch (error) {
         port.postMessage({
           type: 'forward-storage',
-          error: serializeError(error),
+          error: error instanceof Error ? error.message : String(error),
           id,
         })
       }
@@ -91,7 +90,8 @@ export async function getProxyStorage(extensionId: string) {
           const defer = deferMap.get(id)
           if (defer) {
             if (message.error) {
-              defer.reject(message.error)
+              console.log('error', message.error)
+              defer.reject(new Error(message.error))
             } else {
               defer.resolve(message.data)
             }
