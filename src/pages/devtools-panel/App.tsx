@@ -93,7 +93,8 @@ export function App() {
               })
             }
           }
-          return nextState
+
+          return sortObject(nextState)
         })
       })
     })
@@ -285,4 +286,18 @@ function SearchExclude() {
       />
     </label>
   )
+}
+
+function sortObject<T extends Record<string, unknown>>(obj: T): T {
+  const keys = Object.keys(obj).sort((a, b) =>
+    a.localeCompare(b, undefined, { numeric: true })
+  )
+
+  const result = {} as T
+
+  for (const key of keys) {
+    result[key] = obj[key]
+  }
+
+  return result
 }
