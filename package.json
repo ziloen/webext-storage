@@ -35,6 +35,8 @@
   },
   "dependencies": {
     "@fluentui/react-context-selector": "9.1.57",
+    "@ziloen/webext-utils": "0.0.5",
+    "ahooks": "3.7.11",
     "axios": "1.6.8",
     "clsx": "2.1.0",
     "framer-motion": "11.0.28",
