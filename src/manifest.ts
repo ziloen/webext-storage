@@ -21,7 +21,7 @@ type MV3 = Omit<Manifest.WebExtensionManifest, MV2Keys> & ChromiumManifest
 export function getManifest() {
   const manifest: MV3 = {
     manifest_version: 3,
-    name: 'Template WebExt Esbuild React',
+    name: 'Webext Storage',
     version: '0.0.0.1',
     background: isFirefoxEnv
       ? { scripts: ['./background/mian.js'], type: 'module' }

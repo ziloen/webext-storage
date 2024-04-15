@@ -1,7 +1,6 @@
-import { pluginCreator } from '@ziloen/tailwind-config'
-import type { Config } from 'tailwindcss'
+import { defineConfig, pluginCreator } from '@ziloen/tailwind-config'
 
-export default {
+export default defineConfig({
   content: ['./src/**/*.{ts,tsx,html}'],
   theme: {
     colors: {
@@ -66,4 +65,4 @@ export default {
   // https://github.com/tailwindlabs/tailwindcss/blob/master/src/corePlugins.js
   corePlugins: {},
   plugins: [pluginCreator],
-} satisfies Config
+})
