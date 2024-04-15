@@ -4,7 +4,7 @@ import {
   useContextSelector,
 } from '@fluentui/react-context-selector'
 import { listenEvent } from '@ziloen/webext-utils'
-import { useAsyncEffect } from 'ahooks'
+import { useAsyncEffect, useLatest } from 'ahooks'
 import { useEffect, useMemo, useState } from 'react'
 import { CodiconCollapseAll } from '~/icons'
 import { evalFn, getProxyStorage } from '~/utils'
@@ -21,6 +21,7 @@ function useUnmountSignal() {
 
 export function App() {
   const [targetState, setTargetState] = useState<Record<string, unknown>>()
+  const latestTargetState = useLatest(targetState)
   const [highlightKeys, setHighlightKeys] = useState(
     new Map<
       string,
@@ -30,6 +31,7 @@ export function App() {
       ]
     >()
   )
+  const latestHighlightKeys = useLatest(highlightKeys)
 
   const unmountSignal = useUnmountSignal()
 
@@ -58,55 +60,55 @@ export function App() {
     listenEvent(
       storage.local.onChanged,
       changes => {
-        setTargetState(preState => {
-          const nextState = { ...preState }
-          for (const [key, change] of Object.entries(changes)) {
-            if (Object.hasOwn(change, 'newValue')) {
-              nextState[key] = change.newValue
-              const hasOld = Object.hasOwn(change, 'oldValue')
-              setHighlightKeys(pre => {
-                if (pre.has(key)) {
-                  clearTimeout(pre.get(key)![1])
-                }
-                const timeout = setTimeout(() => {
-                  hasOld &&
-                    setHighlightKeys(pre => {
-                      const next = new Map(pre)
-                      next.delete(key)
-                      return next
-                    })
-                }, HIGHLIGHT_TIMEOUT)
-                return new Map(pre).set(key, [
-                  hasOld ? 'modified' : 'added',
-                  timeout,
-                ])
-              })
-            } else {
-              // Deleted
-              setHighlightKeys(pre => {
-                if (pre.has(key)) {
-                  clearTimeout(pre.get(key)![1])
-                }
-                const timeout = setTimeout(() => {
+        const prevState = latestTargetState.current
+        const nextState = { ...prevState }
+
+        for (const [key, change] of Object.entries(changes)) {
+          if (Object.hasOwn(change, 'newValue')) {
+            nextState[key] = change.newValue
+            const hasOld = Object.hasOwn(change, 'oldValue')
+            setHighlightKeys(pre => {
+              if (pre.has(key)) {
+                clearTimeout(pre.get(key)![1])
+              }
+              const timeout = setTimeout(() => {
+                hasOld &&
                   setHighlightKeys(pre => {
-                    if (!pre.has(key)) return pre
                     const next = new Map(pre)
-                    clearInterval(pre.get(key)![1])
-                    next.set(key, [
-                      'ignored',
-                      setTimeout(() => {}, HIGHLIGHT_TIMEOUT),
-                    ])
+                    next.delete(key)
                     return next
                   })
-                }, HIGHLIGHT_TIMEOUT)
+              }, HIGHLIGHT_TIMEOUT)
+              return new Map(pre).set(key, [
+                hasOld ? 'modified' : 'added',
+                timeout,
+              ])
+            })
+          } else {
+            // Deleted
+            setHighlightKeys(pre => {
+              if (pre.has(key)) {
+                clearTimeout(pre.get(key)![1])
+              }
+              const timeout = setTimeout(() => {
+                setHighlightKeys(pre => {
+                  if (!pre.has(key)) return pre
+                  const next = new Map(pre)
+                  clearInterval(pre.get(key)![1])
+                  next.set(key, [
+                    'ignored',
+                    setTimeout(() => {}, HIGHLIGHT_TIMEOUT),
+                  ])
+                  return next
+                })
+              }, HIGHLIGHT_TIMEOUT)
 
-                return new Map(pre).set(key, ['deleted', timeout])
-              })
-            }
+              return new Map(pre).set(key, ['deleted', timeout])
+            })
           }
+        }
 
-          return sortObject(nextState)
-        })
+        setTargetState(sortObject(nextState))
       },
       { signal: unmountSignal }
     )
