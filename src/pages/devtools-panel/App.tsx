@@ -44,7 +44,7 @@ export function App() {
         .then(data => {
           setTargetState(data)
         })
-        .catch(err => {})
+        .catch(() => {})
 
       storage.local.onChanged.addListener(changes => {
         setTargetState(preState => {
@@ -102,18 +102,18 @@ export function App() {
 
   return (
     <CtxProvider modifiedKeys={highlightKeys}>
-      <div className="size-full font-sans flex-column text-[14px] bg-mainBackground text-foreground">
-        <div className="flex-align gap-[12px] px-[8px] h-[40px]">
+      <div className="size-full bg-mainBackground font-sans text-[14px] text-foreground flex-column">
+        <div className="h-[40px] gap-[12px] px-[8px] flex-align">
           <SearchInput />
 
           <SearchExclude />
 
-          <div className="px-2 py-1 bg-button.background hover:bg-button.hoverBackground cursor-pointer">
+          <div className="cursor-pointer bg-button.background px-2 py-1 hover:bg-button.hoverBackground">
             storage.local
           </div>
 
           <button
-            className="flex-center box-content rounded-[5px] size-[16px] ms-auto p-[3px] disabled:opacity-60 cursor-pointer disabled:cursor-default [&:not(:disabled)]:hover:bg-toolbar.hoverBackground"
+            className="ms-auto box-content size-[16px] cursor-pointer rounded-[5px] p-[3px] flex-center disabled:cursor-default disabled:opacity-60 [&:not(:disabled)]:hover:bg-toolbar.hoverBackground"
             style={{
               backgroundSize: '16px',
               backgroundPosition: '50%',
@@ -123,7 +123,7 @@ export function App() {
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-clip  scrollbar-button:hidden scrollbar:size-[10px] scrollbar-thumb:bg-scrollbarSlider.background hover:scrollbar-thumb:bg-scrollbarSlider.hoverBackground active:scrollbar-thumb:bg-scrollbarSlider.activeBackground font-mono">
+        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-clip  font-mono scrollbar:size-[10px] scrollbar-thumb:bg-scrollbarSlider.background hover:scrollbar-thumb:bg-scrollbarSlider.hoverBackground active:scrollbar-thumb:bg-scrollbarSlider.activeBackground scrollbar-button:hidden">
           {targetState &&
             Object.keys(targetState)
               .sort()
@@ -167,7 +167,7 @@ function KeyDisplay({ property, value }: { property: string; value: unknown }) {
 
   return (
     <div
-      className="flex-between h-[22px] group leading-[22px] px-[12px] data-[status=modified]:bg-white/5 data-[status]:duration-0 duration-1000"
+      className="group h-[22px] px-[12px] leading-[22px] duration-1000 flex-between data-[status=modified]:bg-white/5 data-[status]:duration-0"
       data-status={status}
       style={{
         transitionProperty:
@@ -176,7 +176,7 @@ function KeyDisplay({ property, value }: { property: string; value: unknown }) {
       }}
     >
       <div
-        className="group-data-[status=modified]:text-modifiedForeground group-data-[status=added]:text-addedForeground group-data-[status=deleted]:text-deletedForeground duration-1000 group-data-[status=modified]:duration-0 group-data-[status=added]:duration-0 group-data-[status=deleted]:duration-0 group-data-[status=ignored]:text-ignoredForeground"
+        className="duration-1000 group-data-[status=added]:text-addedForeground group-data-[status=deleted]:text-deletedForeground group-data-[status=ignored]:text-ignoredForeground group-data-[status=modified]:text-modifiedForeground group-data-[status=added]:duration-0 group-data-[status=deleted]:duration-0 group-data-[status=modified]:duration-0"
         style={{
           transitionProperty:
             'color, background-color, border-color, text-decoration-color, fill, stroke',
@@ -255,11 +255,11 @@ function SearchInput() {
   const setSearchValue = useContextSelector(Ctx, ctx => ctx.setSearchValue)
 
   return (
-    <label className="flex-align gap-[8px]">
+    <label className="gap-[8px] flex-align">
       <div>Search:</div>
 
       <input
-        className="bg-[#1d1f23] focus-visible:outline-[#3e4452] focus-visible:outline-solid h-[24px] text-[#abb2bf] py-[3px] ps-[6px] placeholder:text-[#cccccc80] leading-[1.4em]"
+        className="h-[24px] bg-[#1d1f23] py-[3px] ps-[6px] leading-[1.4em] text-[#abb2bf] placeholder:text-[#cccccc80] focus-visible:outline-[#3e4452] focus-visible:outline-solid"
         type="text"
         placeholder="key & value"
         value={searchValue}
@@ -274,11 +274,11 @@ function SearchExclude() {
   const setExcludeValue = useContextSelector(Ctx, ctx => ctx.setExcludeValue)
 
   return (
-    <label className="flex-align gap-[8px]">
+    <label className="gap-[8px] flex-align">
       <div>Exclude keys:</div>
 
       <input
-        className="bg-[#1d1f23] focus-visible:outline-[#3e4452] focus-visible:outline-solid h-[24px] text-[#abb2bf] py-[3px] ps-[6px] placeholder:text-[#cccccc80] leading-[1.4em]"
+        className="h-[24px] bg-[#1d1f23] py-[3px] ps-[6px] leading-[1.4em] text-[#abb2bf] placeholder:text-[#cccccc80] focus-visible:outline-[#3e4452] focus-visible:outline-solid"
         type="text"
         placeholder="e.g. a, b"
         value={excludeValue}

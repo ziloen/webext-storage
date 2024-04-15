@@ -2,7 +2,8 @@
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development esno scripts/esbuild.ts",
-    "build": "cross-env NODE_ENV=production esno scripts/esbuild.ts"
+    "build": "cross-env NODE_ENV=production esno scripts/esbuild.ts",
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "@biomejs/biome": "1.6.4",
