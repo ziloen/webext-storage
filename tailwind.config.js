@@ -1,8 +1,9 @@
-import { defineConfig, pluginCreator } from '@ziloen/tailwind-config'
+import { defineConfig, pluginCreator, preset } from '@ziloen/tailwind-config'
 
 export default defineConfig({
   content: ['./src/**/*.{ts,tsx,html}'],
   theme: {
+    ...preset.theme,
     colors: {
       // Default colors
       inherit: 'inherit',
@@ -26,19 +27,6 @@ export default defineConfig({
       modifiedForeground: '#e2c08d',
       deletedForeground: '#c74e39',
       ignoredForeground: '#636b78',
-    },
-
-    lineHeight: {
-      none: '1',
-    },
-
-    zIndex: {
-      auto: 'auto',
-      0: '0',
-      1: '1',
-      2: '2',
-      3: '3',
-      max: '2147483647',
     },
 
     extend: {
