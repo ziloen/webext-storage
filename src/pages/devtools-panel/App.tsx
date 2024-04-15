@@ -6,10 +6,18 @@ import {
 import { listenEvent } from '@ziloen/webext-utils'
 import { useAsyncEffect } from 'ahooks'
 import { useEffect, useMemo, useState } from 'react'
-import { CodiconCollapseAll, CodiconExpandAll } from '~/icons'
+import { CodiconCollapseAll } from '~/icons'
 import { evalFn, getProxyStorage } from '~/utils'
 
 const HIGHLIGHT_TIMEOUT = 1_000
+
+function useUnmountSignal() {
+  const [ac] = useState(() => new AbortController())
+
+  useEffect(() => () => ac.abort(), [])
+
+  return ac.signal
+}
 
 export function App() {
   const [targetState, setTargetState] = useState<Record<string, unknown>>()
@@ -23,91 +31,85 @@ export function App() {
     >()
   )
 
-  useEffect(() => {
-    const ac = new AbortController()
+  const unmountSignal = useUnmountSignal()
 
-    async function iife() {
-      const extensionId = await evalFn(chrome => {
-        const location = document.location
-        if (
-          !location ||
-          location.protocol === 'chrome-extension:' ||
-          location.protocol === 'moz-extension:'
-        ) {
-          return chrome.runtime.id
-        }
+  useAsyncEffect(async function () {
+    const extensionId = await evalFn(chrome => {
+      const location = document.location
+      if (
+        !location ||
+        location.protocol === 'chrome-extension:' ||
+        location.protocol === 'moz-extension:'
+      ) {
+        return chrome.runtime.id
+      }
 
-        return
-      })
+      return
+    })
 
-      if (!extensionId) return
-      const storage = await getProxyStorage(extensionId)
+    if (!extensionId) return
+    const storage = await getProxyStorage(extensionId)
 
-      storage.local
-        .get(null)
-        .then(setTargetState)
-        .catch(() => {})
+    storage.local
+      .get(null)
+      .then(setTargetState)
+      .catch(() => {})
 
-      listenEvent(
-        storage.local.onChanged,
-        changes => {
-          setTargetState(preState => {
-            const nextState = { ...preState }
-            for (const [key, change] of Object.entries(changes)) {
-              if (Object.hasOwn(change, 'newValue')) {
-                nextState[key] = change.newValue
-                const hasOld = Object.hasOwn(change, 'oldValue')
-                setHighlightKeys(pre => {
-                  if (pre.has(key)) {
-                    clearTimeout(pre.get(key)![1])
-                  }
-                  const timeout = setTimeout(() => {
-                    hasOld &&
-                      setHighlightKeys(pre => {
-                        const next = new Map(pre)
-                        next.delete(key)
-                        return next
-                      })
-                  }, HIGHLIGHT_TIMEOUT)
-                  return new Map(pre).set(key, [
-                    hasOld ? 'modified' : 'added',
-                    timeout,
-                  ])
-                })
-              } else {
-                // Deleted
-                setHighlightKeys(pre => {
-                  if (pre.has(key)) {
-                    clearTimeout(pre.get(key)![1])
-                  }
-                  const timeout = setTimeout(() => {
+    listenEvent(
+      storage.local.onChanged,
+      changes => {
+        setTargetState(preState => {
+          const nextState = { ...preState }
+          for (const [key, change] of Object.entries(changes)) {
+            if (Object.hasOwn(change, 'newValue')) {
+              nextState[key] = change.newValue
+              const hasOld = Object.hasOwn(change, 'oldValue')
+              setHighlightKeys(pre => {
+                if (pre.has(key)) {
+                  clearTimeout(pre.get(key)![1])
+                }
+                const timeout = setTimeout(() => {
+                  hasOld &&
                     setHighlightKeys(pre => {
-                      if (!pre.has(key)) return pre
                       const next = new Map(pre)
-                      clearInterval(pre.get(key)![1])
-                      next.set(key, [
-                        'ignored',
-                        setTimeout(() => {}, HIGHLIGHT_TIMEOUT),
-                      ])
+                      next.delete(key)
                       return next
                     })
-                  }, HIGHLIGHT_TIMEOUT)
+                }, HIGHLIGHT_TIMEOUT)
+                return new Map(pre).set(key, [
+                  hasOld ? 'modified' : 'added',
+                  timeout,
+                ])
+              })
+            } else {
+              // Deleted
+              setHighlightKeys(pre => {
+                if (pre.has(key)) {
+                  clearTimeout(pre.get(key)![1])
+                }
+                const timeout = setTimeout(() => {
+                  setHighlightKeys(pre => {
+                    if (!pre.has(key)) return pre
+                    const next = new Map(pre)
+                    clearInterval(pre.get(key)![1])
+                    next.set(key, [
+                      'ignored',
+                      setTimeout(() => {}, HIGHLIGHT_TIMEOUT),
+                    ])
+                    return next
+                  })
+                }, HIGHLIGHT_TIMEOUT)
 
-                  return new Map(pre).set(key, ['deleted', timeout])
-                })
-              }
+                return new Map(pre).set(key, ['deleted', timeout])
+              })
             }
+          }
 
-            return sortObject(nextState)
-          })
-        },
-        { signal: ac.signal }
-      )
-    }
-
-    iife()
-
-    return () => ac.abort()
+          return sortObject(nextState)
+        })
+      },
+      { signal: unmountSignal }
+    )
   }, [])
 
   return (
