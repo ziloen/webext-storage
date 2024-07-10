@@ -1,8 +1,8 @@
 {
   "private": true,
   "scripts": {
-    "dev": "cross-env NODE_ENV=development esno scripts/esbuild.ts",
-    "build": "cross-env NODE_ENV=production esno scripts/esbuild.ts",
+    "dev": "cross-env NODE_ENV=development tsx scripts/esbuild.ts",
+    "build": "cross-env NODE_ENV=production tsx scripts/esbuild.ts",
     "format": "prettier --write ."
   },
   "devDependencies": {
@@ -21,12 +21,12 @@
     "esbuild-plugin-copy": "2.1.1",
     "esbuild-style-plugin": "1.6.3",
     "eslint": "9.6.0",
-    "esno": "4.7.0",
     "fs-extra": "11.2.0",
     "prettier": "3.3.2",
     "prettier-plugin-tailwindcss": "0.6.5",
     "tailwindcss": "3.4.4",
     "ts-lib-enhance": "1.0.18",
+    "tsx": "4.16.2",
     "typescript": "5.5.3",
     "ulid": "2.3.0",
     "unplugin-auto-import": "0.17.6",

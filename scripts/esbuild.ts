@@ -66,10 +66,7 @@ const options: BuildOptions = {
 
     stylePlugin({
       postcss: {
-        plugins: [
-          // @ts-expect-error tailwindcss type issue
-          tailwindcss,
-        ],
+        plugins: [tailwindcss],
       },
     }),
   ],
@@ -91,5 +88,5 @@ if (isDev) {
 
 function writeManifest() {
   console.log('write manifest')
-  execSync('npx esno ./scripts/manifest.ts', { stdio: 'inherit' })
+  execSync('tsx ./scripts/manifest.ts', { stdio: 'inherit' })
 }
