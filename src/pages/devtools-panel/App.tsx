@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-loop-func */
 import { listenEvent } from '@ziloen/webext-utils'
 import { useAsyncEffect, useLatest } from 'ahooks'
+import clsx from 'clsx'
 import { useEffect, useMemo, useState } from 'react'
 import { createContext, useContextSelector } from 'use-context-selector'
 import { CodiconCollapseAll } from '~/icons'
@@ -134,7 +135,12 @@ export function App() {
           </button>
         </div>
 
-        <div className="scrollbar:size-[10px] scrollbar-thumb:bg-scrollbarSlider.background hover:scrollbar-thumb:bg-scrollbarSlider.hoverBackground active:scrollbar-thumb:bg-scrollbarSlider.activeBackground scrollbar-button:hidden min-h-0 flex-1 overflow-y-auto overflow-x-clip font-mono">
+        <div
+          className={clsx(
+            'min-h-0 flex-1 overflow-y-auto overflow-x-clip font-mono',
+            'webkit-scrollbar:size-[10px] webkit-scrollbar-thumb:bg-scrollbarSlider.background hover:webkit-scrollbar-thumb:bg-scrollbarSlider.hoverBackground active:webkit-scrollbar-thumb:bg-scrollbarSlider.activeBackground webkit-scrollbar-button:hidden'
+          )}
+        >
           {targetState &&
             Object.keys(targetState)
               .sort()
@@ -187,7 +193,13 @@ function KeyDisplay({ property, value }: { property: string; value: unknown }) {
       }}
     >
       <div
-        className="duration-1000 group-data-[status=added]:text-addedForeground group-data-[status=deleted]:text-deletedForeground group-data-[status=ignored]:text-ignoredForeground group-data-[status=modified]:text-modifiedForeground group-data-[status=added]:duration-0 group-data-[status=deleted]:duration-0 group-data-[status=modified]:duration-0"
+        className={clsx(
+          'duration-1000',
+          'group-data-[status=added]:text-addedForeground group-data-[status=added]:duration-0',
+          'group-data-[status=deleted]:text-deletedForeground group-data-[status=deleted]:duration-0',
+          'group-data-[status=ignored]:text-ignoredForeground',
+          'group-data-[status=modified]:text-modifiedForeground group-data-[status=modified]:duration-0'
+        )}
         style={{
           transitionProperty:
             'color, background-color, border-color, text-decoration-color, fill, stroke',
