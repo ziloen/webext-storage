@@ -1,11 +1,8 @@
 /* eslint-disable @typescript-eslint/no-loop-func */
-import {
-  createContext,
-  useContextSelector,
-} from '@fluentui/react-context-selector'
 import { listenEvent } from '@ziloen/webext-utils'
 import { useAsyncEffect, useLatest } from 'ahooks'
 import { useEffect, useMemo, useState } from 'react'
+import { createContext, useContextSelector } from 'use-context-selector'
 import { CodiconCollapseAll } from '~/icons'
 import { evalFn, getProxyStorage } from '~/utils'
 
@@ -137,7 +134,7 @@ export function App() {
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-clip  font-mono scrollbar:size-[10px] scrollbar-thumb:bg-scrollbarSlider.background hover:scrollbar-thumb:bg-scrollbarSlider.hoverBackground active:scrollbar-thumb:bg-scrollbarSlider.activeBackground scrollbar-button:hidden">
+        <div className="scrollbar:size-[10px] scrollbar-thumb:bg-scrollbarSlider.background hover:scrollbar-thumb:bg-scrollbarSlider.hoverBackground active:scrollbar-thumb:bg-scrollbarSlider.activeBackground scrollbar-button:hidden min-h-0 flex-1 overflow-y-auto overflow-x-clip font-mono">
           {targetState &&
             Object.keys(targetState)
               .sort()

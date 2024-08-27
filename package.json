@@ -34,7 +34,6 @@
     "webextension-polyfill": "0.12.0"
   },
   "dependencies": {
-    "@fluentui/react-context-selector": "9.1.65",
     "@ziloen/webext-utils": "0.0.5",
     "ahooks": "3.8.1",
     "axios": "1.7.5",
@@ -48,6 +47,7 @@
     "react-i18next": "15.0.1",
     "rxjs": "8.0.0-alpha.14",
     "serialize-error": "11.0.3",
-    "typed-webext": "0.6.12"
+    "typed-webext": "0.6.12",
+    "use-context-selector": "2.0.0"
   }
 }
