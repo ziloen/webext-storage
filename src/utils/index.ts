@@ -33,35 +33,30 @@ function extensionPageInject(chrome: typeof browser, runtimeId: string) {
     }
   } catch {}
 
-  port.onMessage.addListener(
-    async (
-      message: {
-        areaName: 'sync' | 'local' | 'managed' | 'session'
-        method: 'clear' | 'get' | 'remove' | 'set'
-        args: unknown[]
-        id: string
-      },
-      port: Runtime.Port
-    ) => {
-      const { areaName, method, args, id } = message
-
-      try {
-        // @ts-expect-error just ignore it
-        const result = await chrome.storage[areaName][method](...args)
-        port.postMessage({
-          type: 'forward-storage',
-          data: result,
-          id,
-        })
-      } catch (error) {
-        port.postMessage({
-          type: 'forward-storage',
-          error: error instanceof Error ? error.message : String(error),
-          id,
-        })
-      }
+  port.onMessage.addListener(async (message, port) => {
+    const { areaName, method, args, id } = message as {
+      areaName: 'sync' | 'local' | 'managed' | 'session'
+      method: 'clear' | 'get' | 'remove' | 'set'
+      args: unknown[]
+      id: string
     }
-  )
+
+    try {
+      // @ts-expect-error just ignore it
+      const result = await chrome.storage[areaName][method](...args)
+      port.postMessage({
+        type: 'forward-storage',
+        data: result,
+        id,
+      })
+    } catch (error) {
+      port.postMessage({
+        type: 'forward-storage',
+        error: error instanceof Error ? error.message : String(error),
+        id,
+      })
+    }
+  })
 }
 
 export async function getProxyStorage(extensionId: string) {
