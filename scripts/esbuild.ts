@@ -47,7 +47,6 @@ const options: BuildOptions = {
       imports: [
         {
           'webextension-polyfill': [['default', 'browser']],
-          ulid: ['ulid'],
         },
       ],
       dts: r('src/types/auto-imports.d.ts'),

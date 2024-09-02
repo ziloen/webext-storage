@@ -28,7 +28,6 @@
     "ts-lib-enhance": "1.0.18",
     "tsx": "4.19.0",
     "typescript": "5.5.4",
-    "ulid": "2.3.0",
     "unplugin-auto-import": "0.18.2",
     "web-ext": "8.2.0",
     "webextension-polyfill": "0.12.0"
