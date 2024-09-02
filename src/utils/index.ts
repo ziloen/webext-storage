@@ -1,8 +1,8 @@
-import type { Runtime, Storage } from 'webextension-polyfill'
+import type { Storage } from 'webextension-polyfill'
 
 export async function evalFn<Args extends unknown[], Return>(
   closure: (chrome: typeof browser, ...args: Args) => Return,
-  ...args: Args
+  ...args: NoInfer<Args>
 ) {
   const code = `(${closure.toString()})(chrome, ${args
     .map(_ => JSON.stringify(_))
@@ -79,7 +79,7 @@ export async function getProxyStorage(extensionId: string) {
         session: new Set<ChangedCallback>(),
       }
 
-      port.onMessage.addListener(message => {
+      port.onMessage.addListener((message: any) => {
         if (message.type === 'forward-storage') {
           const id = message.id
           const defer = deferMap.get(id)

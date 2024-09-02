@@ -7,6 +7,9 @@ import { createContext, useContextSelector } from 'use-context-selector'
 import { CodiconCollapseAll } from '~/icons'
 import { evalFn, getProxyStorage } from '~/utils'
 
+// Highlight search value
+// Delete button
+
 const HIGHLIGHT_TIMEOUT = 1_000
 
 function useUnmountSignal() {
