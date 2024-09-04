@@ -10,7 +10,7 @@
     "@fontsource-variable/fira-code": "5.0.19",
     "@types/chrome": "0.0.270",
     "@types/fs-extra": "11.0.4",
-    "@types/node": "20.14.10",
+    "@types/node": "20.16.4",
     "@types/react": "18.3.5",
     "@types/react-dom": "18.3.0",
     "@types/webextension-polyfill": "0.12.1",
@@ -33,11 +33,12 @@
     "webextension-polyfill": "0.12.0"
   },
   "dependencies": {
+    "@orama/orama": "2.0.23",
     "@ziloen/webext-utils": "0.0.5",
     "ahooks": "3.8.1",
     "axios": "1.7.7",
     "clsx": "2.1.1",
-    "framer-motion": "11.3.31",
+    "framer-motion": "11.4.0",
     "i18next": "23.14.0",
     "lodash-es": "4.17.21",
     "monaco-editor": "0.51.0",
