@@ -91,11 +91,12 @@ export function App() {
               if (pre.has(key)) {
                 clearTimeout(pre.get(key)![1])
               }
+
               const timeout = setTimeout(() => {
                 setHighlightKeys(pre => {
                   if (!pre.has(key)) return pre
                   const next = new Map(pre)
-                  clearInterval(pre.get(key)![1])
+                  clearTimeout(pre.get(key)![1])
                   next.set(key, [
                     'ignored',
                     setTimeout(() => {}, HIGHLIGHT_TIMEOUT),
@@ -117,7 +118,7 @@ export function App() {
 
   return (
     <CtxProvider modifiedKeys={highlightKeys}>
-      <div className="size-full bg-mainBackground font-sans text-[14px] text-foreground flex-column">
+      <div className="flex-column size-full bg-mainBackground font-sans text-[14px] text-foreground">
         <div className="h-[40px] gap-[12px] px-[8px] flex-align">
           <SearchInput />
 
