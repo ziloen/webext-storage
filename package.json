@@ -1,5 +1,6 @@
 {
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "cross-env NODE_ENV=development tsx scripts/esbuild.ts",
     "build": "cross-env NODE_ENV=production tsx scripts/esbuild.ts",

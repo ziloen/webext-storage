@@ -37,7 +37,7 @@ export function App() {
   const unmountSignal = useUnmountSignal()
 
   useAsyncEffect(async function () {
-    const extensionId = await evalFn(chrome => {
+    const extensionId = await evalFn((chrome) => {
       const location = document.location
       if (
         !location ||
@@ -60,7 +60,7 @@ export function App() {
 
     listenEvent(
       storage.local.onChanged,
-      changes => {
+      (changes) => {
         const prevState = latestTargetState.current
         const nextState = { ...prevState }
 
@@ -68,13 +68,13 @@ export function App() {
           if (Object.hasOwn(change, 'newValue')) {
             nextState[key] = change.newValue
             const hasOld = Object.hasOwn(change, 'oldValue')
-            setHighlightKeys(pre => {
+            setHighlightKeys((pre) => {
               if (pre.has(key)) {
                 clearTimeout(pre.get(key)![1])
               }
               const timeout = setTimeout(() => {
                 hasOld &&
-                  setHighlightKeys(pre => {
+                  setHighlightKeys((pre) => {
                     const next = new Map(pre)
                     next.delete(key)
                     return next
@@ -87,13 +87,13 @@ export function App() {
             })
           } else {
             // Deleted
-            setHighlightKeys(pre => {
+            setHighlightKeys((pre) => {
               if (pre.has(key)) {
                 clearTimeout(pre.get(key)![1])
               }
 
               const timeout = setTimeout(() => {
-                setHighlightKeys(pre => {
+                setHighlightKeys((pre) => {
                   if (!pre.has(key)) return pre
                   const next = new Map(pre)
                   clearTimeout(pre.get(key)![1])
@@ -148,7 +148,7 @@ export function App() {
           {targetState &&
             Object.keys(targetState)
               .sort()
-              .map((key, index) => {
+              .map((key) => {
                 return (
                   <KeyDisplay
                     key={key}
@@ -164,18 +164,18 @@ export function App() {
 }
 
 function KeyDisplay({ property, value }: { property: string; value: unknown }) {
-  const searchValue = useContextSelector(Ctx, ctx =>
+  const searchValue = useContextSelector(Ctx, (ctx) =>
     ctx.searchValue.toLowerCase()
   )
 
-  const excludeArr = useContextSelector(Ctx, ctx => ctx.excludeArr)
+  const excludeArr = useContextSelector(Ctx, (ctx) => ctx.excludeArr)
 
-  const status = useContextSelector(Ctx, ctx =>
+  const status = useContextSelector(Ctx, (ctx) =>
     ctx.modifiedKeys.has(property) ? ctx.modifiedKeys.get(property)![0] : null
   )
 
   const excluded = useMemo(() => {
-    return excludeArr.some(s => property.toLowerCase().includes(s))
+    return excludeArr.some((s) => property.toLowerCase().includes(s))
   }, [excludeArr, property])
 
   const searchHidden = useMemo(() => {
@@ -255,7 +255,7 @@ function CtxProvider({
   const excludeArr = useMemo(() => {
     return excludeValue
       .split(',')
-      .map(s => s.trim().toLowerCase())
+      .map((s) => s.trim().toLowerCase())
       .filter(Boolean)
   }, [excludeValue])
 
@@ -278,8 +278,8 @@ function CtxProvider({
 }
 
 function SearchInput() {
-  const searchValue = useContextSelector(Ctx, ctx => ctx.searchValue)
-  const setSearchValue = useContextSelector(Ctx, ctx => ctx.setSearchValue)
+  const searchValue = useContextSelector(Ctx, (ctx) => ctx.searchValue)
+  const setSearchValue = useContextSelector(Ctx, (ctx) => ctx.setSearchValue)
 
   return (
     <label className="gap-[8px] flex-align">
@@ -290,15 +290,15 @@ function SearchInput() {
         type="text"
         placeholder="key & value"
         value={searchValue}
-        onChange={e => setSearchValue(e.currentTarget.value)}
+        onChange={(e) => setSearchValue(e.currentTarget.value)}
       />
     </label>
   )
 }
 
 function SearchExclude() {
-  const excludeValue = useContextSelector(Ctx, ctx => ctx.excludeValue)
-  const setExcludeValue = useContextSelector(Ctx, ctx => ctx.setExcludeValue)
+  const excludeValue = useContextSelector(Ctx, (ctx) => ctx.excludeValue)
+  const setExcludeValue = useContextSelector(Ctx, (ctx) => ctx.setExcludeValue)
 
   return (
     <label className="gap-[8px] flex-align">
@@ -309,7 +309,7 @@ function SearchExclude() {
         type="text"
         placeholder="e.g. a, b"
         value={excludeValue}
-        onChange={e => setExcludeValue(e.currentTarget.value)}
+        onChange={(e) => setExcludeValue(e.currentTarget.value)}
       />
     </label>
   )
