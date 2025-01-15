@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-loop-func */
 import { listenEvent } from '@ziloen/webext-utils'
-import { useAsyncEffect, useLatest } from 'ahooks'
 import clsx from 'clsx'
+import { noop } from 'lodash-es'
 import { useEffect, useMemo, useState } from 'react'
 import { createContext, useContextSelector } from 'use-context-selector'
+import { useLatest, useMemoizedFn } from '~/hooks'
 import { CodiconCollapseAll } from '~/icons'
 import { evalFn, getProxyStorage } from '~/utils'
 
@@ -36,7 +36,11 @@ export function App() {
 
   const unmountSignal = useUnmountSignal()
 
-  useAsyncEffect(async function () {
+  useEffect(() => {
+    loadInitialData()
+  }, [])
+
+  const loadInitialData = useMemoizedFn(async () => {
     const extensionId = await evalFn((chrome) => {
       const location = document.location
       if (
@@ -99,7 +103,7 @@ export function App() {
                   clearTimeout(pre.get(key)![1])
                   next.set(key, [
                     'ignored',
-                    setTimeout(() => {}, HIGHLIGHT_TIMEOUT),
+                    setTimeout(noop, HIGHLIGHT_TIMEOUT),
                   ])
                   return next
                 })
@@ -114,12 +118,12 @@ export function App() {
       },
       { signal: unmountSignal }
     )
-  }, [])
+  })
 
   return (
     <CtxProvider modifiedKeys={highlightKeys}>
-      <div className="flex-column size-full bg-mainBackground font-sans text-[14px] text-foreground">
-        <div className="h-[40px] gap-[12px] px-[8px] flex-align">
+      <div className="flex size-full flex-col bg-mainBackground font-sans text-[14px] text-foreground">
+        <div className="flex h-[40px] items-center gap-[12px] px-[8px]">
           <SearchInput />
 
           <SearchExclude />
@@ -188,7 +192,7 @@ function KeyDisplay({ property, value }: { property: string; value: unknown }) {
 
   return (
     <div
-      className="group h-[22px] px-[12px] leading-[22px] duration-1000 flex-between data-[status=modified]:bg-white/5 data-[status]:duration-0"
+      className="group flex h-[22px] justify-between px-[12px] leading-[22px] duration-1000 data-[status=modified]:bg-white/5 data-[status]:duration-0"
       data-status={status}
       style={{
         transitionProperty:
@@ -282,7 +286,7 @@ function SearchInput() {
   const setSearchValue = useContextSelector(Ctx, (ctx) => ctx.setSearchValue)
 
   return (
-    <label className="gap-[8px] flex-align">
+    <label className="flex items-center gap-[8px]">
       <div>Search:</div>
 
       <input
@@ -301,7 +305,7 @@ function SearchExclude() {
   const setExcludeValue = useContextSelector(Ctx, (ctx) => ctx.setExcludeValue)
 
   return (
-    <label className="gap-[8px] flex-align">
+    <label className="flex items-center gap-[8px]">
       <div>Exclude keys:</div>
 
       <input

@@ -2,7 +2,7 @@ import type { BuildOptions, Plugin } from 'esbuild'
 import { build, context } from 'esbuild'
 import { copy as CopyPlugin } from 'esbuild-plugin-copy'
 import stylePlugin from 'esbuild-style-plugin'
-import { emptyDirSync, ensureDirSync, watchFile } from 'fs-extra'
+import fsExtra from 'fs-extra'
 import { execSync } from 'node:child_process'
 import tailwindcss from 'tailwindcss'
 import AutoImport from 'unplugin-auto-import/esbuild'
@@ -71,14 +71,14 @@ const options: BuildOptions = {
   ],
 }
 
-ensureDirSync(outdir)
-emptyDirSync(outdir)
+fsExtra.ensureDirSync(outdir)
+fsExtra.emptyDirSync(outdir)
 writeManifest()
 
 if (isDev) {
-  context(options).then(ctx => ctx.watch())
+  context(options).then((ctx) => ctx.watch())
 
-  watchFile(r('src/manifest.ts'), () => {
+  fsExtra.watchFile(r('src/manifest.ts'), () => {
     writeManifest()
   })
 } else {
