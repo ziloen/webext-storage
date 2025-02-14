@@ -1,9 +1,9 @@
 import { listenEvent } from '@ziloen/webext-utils'
 import clsx from 'clsx'
 import { noop } from 'lodash-es'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { createContext, useContextSelector } from 'use-context-selector'
-import { useLatest, useMemoizedFn } from '~/hooks'
+import { useGetState, useLatest, useMemoizedFn } from '~/hooks'
 import { CodiconCollapseAll } from '~/icons'
 import { evalFn, getProxyStorage } from '~/utils'
 
@@ -21,8 +21,10 @@ function useUnmountSignal() {
 }
 
 export function App() {
-  const [targetState, setTargetState] = useState<Record<string, unknown>>()
-  const latestTargetState = useLatest(targetState)
+  const [targetState, setTargetState, getTargetState] = useGetState<Record<
+    string,
+    unknown
+  > | null>(null)
   const [highlightKeys, setHighlightKeys] = useState(
     new Map<
       string,
@@ -59,14 +61,13 @@ export function App() {
 
     storage.local
       .get(null)
-      .then(setTargetState)
+      .then((state) => setTargetState(sortObject(state)))
       .catch(() => {})
 
     listenEvent(
       storage.local.onChanged,
       (changes) => {
-        const prevState = latestTargetState.current
-        const nextState = { ...prevState }
+        const nextState = { ...getTargetState() }
 
         for (const [key, change] of Object.entries(changes)) {
           if (Object.hasOwn(change, 'newValue')) {
@@ -150,17 +151,9 @@ export function App() {
           )}
         >
           {targetState &&
-            Object.keys(targetState)
-              .sort()
-              .map((key) => {
-                return (
-                  <KeyDisplay
-                    key={key}
-                    property={key}
-                    value={targetState[key]}
-                  />
-                )
-              })}
+            Object.entries(targetState).map(([key, value]) => (
+              <KeyDisplay key={key} property={key} value={value} />
+            ))}
         </div>
       </div>
     </CtxProvider>
@@ -182,8 +175,27 @@ function KeyDisplay({ property, value }: { property: string; value: unknown }) {
     return excludeArr.some((s) => property.toLowerCase().includes(s))
   }, [excludeArr, property])
 
+  const stringifiedValueRef = useRef<string | null>(null)
+
+  const stringfyValue = useMemoizedFn(() => {
+    return (stringifiedValueRef.current = JSON.stringify(value))
+  })
+
   const searchHidden = useMemo(() => {
-    return searchValue && !property.toLowerCase().includes(searchValue)
+    if (!searchValue) return false
+    if (property.toLocaleLowerCase().includes(searchValue)) return false
+
+    let stringifiedValue = stringifiedValueRef.current
+
+    if (stringifiedValue === null) {
+      stringifiedValue = stringfyValue()
+    }
+
+    if (stringifiedValue.toLocaleLowerCase().includes(searchValue)) {
+      return false
+    }
+
+    return true
   }, [property, searchValue])
 
   if (searchHidden || excluded) {
@@ -320,9 +332,7 @@ function SearchExclude() {
 }
 
 function sortObject<T extends Record<string, unknown>>(obj: T): T {
-  const keys = Object.keys(obj).sort((a, b) =>
-    a.localeCompare(b, undefined, { numeric: true })
-  )
+  const keys = Object.keys(obj).sort((a, b) => a.localeCompare(b))
 
   const result = {} as T
 

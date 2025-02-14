@@ -5,6 +5,7 @@
   "endOfLine": "lf",
   "htmlWhitespaceSensitivity": "css",
   "jsxSingleQuote": false,
+  "objectWrap": "preserve",
   "plugins": [
     "prettier-plugin-tailwindcss"
   ],
