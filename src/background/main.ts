@@ -1,3 +1,3 @@
-browser.runtime.onConnectExternal.addListener(port => {
+browser.runtime.onConnectExternal.addListener((port) => {
   port.sender
 })

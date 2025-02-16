@@ -5,7 +5,7 @@ export async function evalFn<Args extends unknown[], Return>(
   ...args: NoInfer<Args>
 ) {
   const code = `(${closure.toString()})(chrome, ${args
-    .map(_ => JSON.stringify(_))
+    .map((_) => JSON.stringify(_))
     .join(', ')})`
 
   const result = await browser.devtools.inspectedWindow.eval(code)
@@ -61,7 +61,7 @@ function extensionPageInject(chrome: typeof browser, runtimeId: string) {
 
 export async function getProxyStorage(extensionId: string) {
   return new Promise<Storage.Static>((resolve, reject) => {
-    browser.runtime.onConnectExternal.addListener(port => {
+    browser.runtime.onConnectExternal.addListener((port) => {
       if (port.sender?.id !== extensionId) return
 
       const deferMap = new Map<string, PromiseWithResolvers<unknown>>()
@@ -98,7 +98,7 @@ export async function getProxyStorage(extensionId: string) {
             areaName: AreaName
           }
 
-          listenersMap[areaName]?.forEach(listener => listener(changes))
+          listenersMap[areaName]?.forEach((listener) => listener(changes))
         }
       })
 
