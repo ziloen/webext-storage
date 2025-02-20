@@ -2,6 +2,8 @@
   "compilerOptions": {
     "baseUrl": "./",
     "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "allowJs": false,
     "esModuleInterop": true,
     "strict": true,

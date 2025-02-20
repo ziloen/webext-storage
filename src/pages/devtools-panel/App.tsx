@@ -129,20 +129,20 @@ export function App() {
 
   return (
     <CtxProvider modifiedKeys={highlightKeys}>
-      <div className="flex size-full flex-col bg-mainBackground font-sans text-[14px] text-foreground">
+      <div className="bg-main-background text-foreground flex size-full flex-col font-sans text-[14px]">
         <div className="flex h-[40px] items-center gap-[12px] px-[8px]">
           <SearchInput />
 
           <SearchExclude />
 
-          <div className="cursor-pointer bg-button.background px-2 py-1 hover:bg-button.hoverBackground">
+          <div className="bg-button.background hover:bg-button.hover-background cursor-pointer px-2 py-1">
             storage.local
           </div>
 
           <span>{formatBytes(bytesInUse)}</span>
 
           <button
-            className="ms-auto box-content size-[16px] cursor-pointer rounded-[5px] p-[3px] flex-center disabled:cursor-default disabled:opacity-60 [&:not(:disabled)]:hover:bg-toolbar.hoverBackground"
+            className="flex-center not-disabled:hover:bg-toolbar.hover-background ms-auto box-content size-[16px] cursor-pointer rounded-[5px] p-[3px] disabled:cursor-default disabled:opacity-60"
             style={{
               backgroundSize: '16px',
               backgroundPosition: '50%',
@@ -154,8 +154,8 @@ export function App() {
 
         <div
           className={clsx(
-            'min-h-0 flex-1 overflow-y-auto overflow-x-clip font-mono',
-            'webkit-scrollbar:size-[10px] webkit-scrollbar-thumb:bg-scrollbarSlider.background hover:webkit-scrollbar-thumb:bg-scrollbarSlider.hoverBackground active:webkit-scrollbar-thumb:bg-scrollbarSlider.activeBackground webkit-scrollbar-button:hidden'
+            'min-h-0 flex-1 overflow-x-clip overflow-y-auto font-mono',
+            'webkit-scrollbar:size-[10px] webkit-scrollbar-thumb:bg-scrollbar-slider.background hover:webkit-scrollbar-thumb:bg-scrollbar-slider.hover-background active:webkit-scrollbar-thumb:bg-scrollbar-slider.active-background webkit-scrollbar-button:hidden'
           )}
         >
           {targetState &&
@@ -225,7 +225,7 @@ function KeyDisplay({ property, value }: { property: string; value: unknown }) {
 
   return (
     <div
-      className="group flex h-[22px] justify-between px-[12px] leading-[22px] duration-1000 data-[status=modified]:bg-white/5 data-[status]:duration-0"
+      className="group flex h-[22px] justify-between px-[12px] leading-[22px] duration-1000 data-status:duration-0 data-[status=modified]:bg-white/5"
       data-status={status}
       style={{
         transitionProperty:
@@ -236,10 +236,10 @@ function KeyDisplay({ property, value }: { property: string; value: unknown }) {
       <div
         className={clsx(
           'duration-1000',
-          'group-data-[status=added]:text-addedForeground group-data-[status=added]:duration-0',
-          'group-data-[status=deleted]:text-deletedForeground group-data-[status=deleted]:duration-0',
-          'group-data-[status=ignored]:text-ignoredForeground',
-          'group-data-[status=modified]:text-modifiedForeground group-data-[status=modified]:duration-0'
+          'group-data-[status=added]:text-added-foreground group-data-[status=added]:duration-0',
+          'group-data-[status=deleted]:text-deleted-foreground group-data-[status=deleted]:duration-0',
+          'group-data-[status=ignored]:text-ignored-foreground',
+          'group-data-[status=modified]:text-modified-foreground group-data-[status=modified]:duration-0'
         )}
         style={{
           transitionProperty:

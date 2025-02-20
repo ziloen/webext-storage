@@ -1,10 +1,10 @@
+import tailwindcss from '@tailwindcss/postcss'
 import type { BuildOptions, Plugin } from 'esbuild'
 import { build, context } from 'esbuild'
 import { copy as CopyPlugin } from 'esbuild-plugin-copy'
 import stylePlugin from 'esbuild-style-plugin'
 import fsExtra from 'fs-extra'
 import { execSync } from 'node:child_process'
-import tailwindcss from 'tailwindcss'
 import AutoImport from 'unplugin-auto-import/esbuild'
 import { isDev, isFirefoxEnv, r } from './utils'
 
@@ -36,6 +36,7 @@ const options: BuildOptions = {
   outdir: outdir,
   keepNames: isDev,
   drop: isDev ? [] : ['console', 'debugger'],
+  logLevel: "info",
   loader: {
     '.woff2': 'file',
   },
