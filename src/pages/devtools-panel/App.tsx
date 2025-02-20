@@ -38,6 +38,8 @@ export function App() {
 
   const unmountSignal = useUnmountSignal()
 
+  const [bytesInUse, setBytesInUse] = useState(0)
+
   useEffect(() => {
     loadInitialData()
   }, [])
@@ -63,6 +65,10 @@ export function App() {
       .get(null)
       .then((state) => setTargetState(sortObject(state)))
       .catch(() => {})
+
+    storage.local.getBytesInUse(null).then((bytes) => {
+      setBytesInUse(bytes)
+    })
 
     listenEvent(
       storage.local.onChanged,
@@ -133,6 +139,8 @@ export function App() {
             storage.local
           </div>
 
+          <span>{formatBytes(bytesInUse)}</span>
+
           <button
             className="ms-auto box-content size-[16px] cursor-pointer rounded-[5px] p-[3px] flex-center disabled:cursor-default disabled:opacity-60 [&:not(:disabled)]:hover:bg-toolbar.hoverBackground"
             style={{
@@ -158,6 +166,19 @@ export function App() {
       </div>
     </CtxProvider>
   )
+}
+
+function formatBytes(bytes: number) {
+  const base = 1024
+  let n = 0
+  const labels = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB']
+
+  while (bytes > base && n < labels.length - 1) {
+    bytes /= base
+    n++
+  }
+
+  return `${bytes.toFixed(2)}${labels[n] ?? 'B'}`
 }
 
 function KeyDisplay({ property, value }: { property: string; value: unknown }) {
