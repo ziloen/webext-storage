@@ -34,8 +34,6 @@
     ],
     "types": [
       "ts-lib-enhance",
-      "ts-lib-enhance/highlight",
-      "ts-lib-enhance/view-transition",
       "chrome"
     ],
     "paths": {

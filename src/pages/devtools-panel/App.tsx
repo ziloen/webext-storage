@@ -66,7 +66,7 @@ export function App() {
       .then((state) => setTargetState(sortObject(state)))
       .catch(() => {})
 
-    storage.local.getBytesInUse(null).then((bytes) => {
+    storage.local.getBytesInUse?.(null).then((bytes) => {
       setBytesInUse(bytes)
     })
 
