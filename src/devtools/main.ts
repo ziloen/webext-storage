@@ -4,6 +4,6 @@ if (browser.devtools && browser.devtools.panels) {
   browser.devtools.panels.create(
     'WebExt Storage',
     '',
-    '/pages/devtools-panel/index.html'
+    '/pages/devtools-panel/index.html',
   )
 }

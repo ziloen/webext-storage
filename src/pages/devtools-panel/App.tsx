@@ -32,7 +32,7 @@ export function App() {
         type: 'added' | 'modified' | 'deleted' | 'ignored',
         timer: ReturnType<typeof setTimeout>,
       ]
-    >()
+    >(),
   )
   const latestHighlightKeys = useLatest(highlightKeys)
 
@@ -123,7 +123,7 @@ export function App() {
 
         setTargetState(sortObject(nextState))
       },
-      { signal: unmountSignal }
+      { signal: unmountSignal },
     )
   })
 
@@ -155,7 +155,7 @@ export function App() {
         <div
           className={clsx(
             'min-h-0 flex-1 overflow-x-clip overflow-y-auto font-mono',
-            'webkit-scrollbar:size-[10px] webkit-scrollbar-thumb:bg-scrollbar-slider.background hover:webkit-scrollbar-thumb:bg-scrollbar-slider.hover-background active:webkit-scrollbar-thumb:bg-scrollbar-slider.active-background webkit-scrollbar-button:hidden'
+            'webkit-scrollbar:size-[10px] webkit-scrollbar-thumb:bg-scrollbar-slider.background hover:webkit-scrollbar-thumb:bg-scrollbar-slider.hover-background active:webkit-scrollbar-thumb:bg-scrollbar-slider.active-background webkit-scrollbar-button:hidden',
           )}
         >
           {targetState &&
@@ -183,13 +183,13 @@ function formatBytes(bytes: number) {
 
 function KeyDisplay({ property, value }: { property: string; value: unknown }) {
   const searchValue = useContextSelector(Ctx, (ctx) =>
-    ctx.searchValue.toLowerCase()
+    ctx.searchValue.toLowerCase(),
   )
 
   const excludeArr = useContextSelector(Ctx, (ctx) => ctx.excludeArr)
 
   const status = useContextSelector(Ctx, (ctx) =>
-    ctx.modifiedKeys.has(property) ? ctx.modifiedKeys.get(property)![0] : null
+    ctx.modifiedKeys.has(property) ? ctx.modifiedKeys.get(property)![0] : null,
   )
 
   const excluded = useMemo(() => {
@@ -239,7 +239,7 @@ function KeyDisplay({ property, value }: { property: string; value: unknown }) {
           'group-data-[status=added]:text-added-foreground group-data-[status=added]:duration-0',
           'group-data-[status=deleted]:text-deleted-foreground group-data-[status=deleted]:duration-0',
           'group-data-[status=ignored]:text-ignored-foreground',
-          'group-data-[status=modified]:text-modified-foreground group-data-[status=modified]:duration-0'
+          'group-data-[status=modified]:text-modified-foreground group-data-[status=modified]:duration-0',
         )}
         style={{
           transitionProperty:
@@ -353,7 +353,8 @@ function SearchExclude() {
 }
 
 function sortObject<T extends Record<string, unknown>>(obj: T): T {
-  const keys = Object.keys(obj).sort((a, b) => a.localeCompare(b))
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  const keys = Object.keys(obj).sort(new Intl.Collator().compare)
 
   const result = {} as T
 

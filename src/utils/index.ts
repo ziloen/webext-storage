@@ -67,7 +67,7 @@ export async function getProxyStorage(extensionId: string) {
       const deferMap = new Map<string, PromiseWithResolvers<unknown>>()
 
       type ChangedCallback = (
-        changes: Record<string, Storage.StorageChange>
+        changes: Record<string, Storage.StorageChange>,
       ) => void
 
       type AreaName = 'local' | 'sync' | 'managed' | 'session'
@@ -129,7 +129,7 @@ export async function getProxyStorage(extensionId: string) {
                   return defer.promise
                 }
               },
-            }
+            },
           )
         },
       })

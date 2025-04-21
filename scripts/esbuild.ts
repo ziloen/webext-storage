@@ -36,7 +36,7 @@ const options: BuildOptions = {
   outdir: outdir,
   keepNames: isDev,
   drop: isDev ? [] : ['console', 'debugger'],
-  logLevel: "info",
+  logLevel: 'info',
   loader: {
     '.woff2': 'file',
   },
