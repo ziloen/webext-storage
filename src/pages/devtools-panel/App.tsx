@@ -135,14 +135,14 @@ export function App() {
 
           <SearchExclude />
 
-          <div className="bg-button.background hover:bg-button.hover-background cursor-pointer px-2 py-1">
+          <div className="bg-button_background hover:bg-button_hover-background cursor-pointer px-2 py-1">
             storage.local
           </div>
 
           <span>{formatBytes(bytesInUse)}</span>
 
           <button
-            className="flex-center not-disabled:hover:bg-toolbar.hover-background ms-auto box-content size-[16px] cursor-pointer rounded-[5px] p-[3px] disabled:cursor-default disabled:opacity-60"
+            className="flex-center not-disabled:hover:bg-toolbar_hover-background ms-auto box-content size-[16px] cursor-pointer rounded-[5px] p-[3px] disabled:cursor-default disabled:opacity-60"
             style={{
               backgroundSize: '16px',
               backgroundPosition: '50%',
@@ -155,7 +155,7 @@ export function App() {
         <div
           className={clsx(
             'min-h-0 flex-1 overflow-x-clip overflow-y-auto font-mono',
-            'webkit-scrollbar:size-[10px] webkit-scrollbar-thumb:bg-scrollbar-slider.background hover:webkit-scrollbar-thumb:bg-scrollbar-slider.hover-background active:webkit-scrollbar-thumb:bg-scrollbar-slider.active-background webkit-scrollbar-button:hidden',
+            'webkit-scrollbar:size-[10px] webkit-scrollbar-thumb:bg-scrollbar-slider_background hover:webkit-scrollbar-thumb:bg-scrollbar-slider_hover-background active:webkit-scrollbar-thumb:bg-scrollbar-slider_active-background webkit-scrollbar-button:hidden',
           )}
         >
           {targetState &&
@@ -206,11 +206,7 @@ function KeyDisplay({ property, value }: { property: string; value: unknown }) {
     if (!searchValue) return false
     if (property.toLocaleLowerCase().includes(searchValue)) return false
 
-    let stringifiedValue = stringifiedValueRef.current
-
-    if (stringifiedValue === null) {
-      stringifiedValue = stringfyValue()
-    }
+    const stringifiedValue = stringifiedValueRef.current ?? stringfyValue()
 
     if (stringifiedValue.toLocaleLowerCase().includes(searchValue)) {
       return false

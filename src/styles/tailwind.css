@@ -5,13 +5,13 @@
 @theme {
   --font-mono: "Fira Code Variable", ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, "DejaVu Sans Mono", monospace;
 
-  --color-button\.background: #404754;
-  --color-button\.hover-background: #4d5565;
-  --color-editor\.find-match-highlight-background: rgba(97, 153, 255, 0.18);
-  --color-scrollbar-slider\.activeBackground: rgba(116, 125, 145, 0.5);
-  --color-scrollbar-slider\.background: rgba(78, 86, 102, 0.38);
-  --color-scrollbar-slider\.hover-background: rgba(90, 99, 117, 0.5);
-  --color-toolbar\.hover-background: rgba(90, 93, 94, 0.31);
+  --color-button_background: #404754;
+  --color-button_hover-background: #4d5565;
+  --color-editor_find-match-highlight-background: rgba(97, 153, 255, 0.18);
+  --color-scrollbar-slider_activeBackground: rgba(116, 125, 145, 0.5);
+  --color-scrollbar-slider_background: rgba(78, 86, 102, 0.38);
+  --color-scrollbar-slider_hover-background: rgba(90, 99, 117, 0.5);
+  --color-toolbar_hover-background: rgba(90, 93, 94, 0.31);
   --color-foreground: #cccccc;
   --color-icon-foreground: #c5c5c5;
   --color-main-background: #1e2227;
