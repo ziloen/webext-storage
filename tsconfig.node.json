@@ -1,0 +1,24 @@
+{
+  "extends": [
+    "./tsconfig.json",
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "allowJs": true,
+    "checkJs": true,
+    "erasableSyntaxOnly": true,
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "*.js",
+    "*.ts",
+    "scripts",
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.json"
+    }
+  ]
+}

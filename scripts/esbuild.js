@@ -1,17 +1,23 @@
 import tailwindcss from '@tailwindcss/postcss'
-import type { BuildOptions, Plugin } from 'esbuild'
 import { build, context } from 'esbuild'
 import { copy as CopyPlugin } from 'esbuild-plugin-copy'
 import stylePlugin from 'esbuild-style-plugin'
 import fsExtra from 'fs-extra'
 import { execSync } from 'node:child_process'
 import AutoImport from 'unplugin-auto-import/esbuild'
-import { isDev, isFirefoxEnv, r } from './utils'
+import { isDev, isFirefoxEnv, r } from './utils.js'
+
+/**
+ * @import { BuildOptions, Plugin } from 'esbuild'
+ */
 
 const cwd = process.cwd()
 const outdir = r('dist/dev')
 
-const options: BuildOptions = {
+/**
+ * @type {BuildOptions}
+ */
+const options = {
   entryPoints: [
     r('src/background/main.ts'),
     r('src/devtools/main.ts'),
@@ -52,7 +58,7 @@ const options: BuildOptions = {
       ],
       dts: r('src/types/auto-imports.d.ts'),
       ignoreDts: ['browser'],
-    }) as Plugin,
+    }),
 
     CopyPlugin({
       resolveFrom: 'cwd',
@@ -79,7 +85,7 @@ writeManifest()
 if (isDev) {
   context(options).then((ctx) => ctx.watch())
 
-  fsExtra.watchFile(r('src/manifest.ts'), () => {
+  fsExtra.watchFile(r('scripts/gen-manifest.ts'), () => {
     writeManifest()
   })
 } else {
@@ -87,6 +93,7 @@ if (isDev) {
 }
 
 function writeManifest() {
-  console.log('write manifest')
-  execSync('tsx ./scripts/manifest.ts', { stdio: 'inherit' })
+  execSync('node --experimental-strip-types ./scripts/gen-manifest.ts', {
+    stdio: 'inherit',
+  })
 }

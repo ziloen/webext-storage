@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
+    "composite": true,
     "baseUrl": "./",
+    "outDir": "./dist",
     "jsx": "react-jsx",
     "module": "ESNext",
     "moduleResolution": "bundler",
@@ -20,7 +22,6 @@
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
     "stripInternal": true,
-    "noEmit": true,
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -45,9 +46,16 @@
       ],
     },
   },
+  "include": [
+    "src"
+  ],
   "exclude": [
     "node_modules",
     "dist",
-    "scripts",
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
   ]
 }

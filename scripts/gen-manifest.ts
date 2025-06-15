@@ -1,5 +1,6 @@
+import fsExta from 'fs-extra'
 import type { Manifest } from 'webextension-polyfill'
-import { isDev, isFirefoxEnv } from '../scripts/utils'
+import { isDev, isFirefoxEnv, r } from './utils.js'
 
 type ChromiumPermissions = 'sidePanel'
 type Permissions =
@@ -14,11 +15,19 @@ type ChromiumManifest = {
   side_panel?: {
     default_path: string
   }
+  update_url?: string
 }
 
-type MV3 = Omit<Manifest.WebExtensionManifest, MV2Keys> & ChromiumManifest
+type StrictManifest = {
+  permissions?: Permissions[]
+  optional_permissions?: OptionalPermissions[]
+}
 
-export function getManifest() {
+type MV3 = Omit<Manifest.WebExtensionManifest, MV2Keys | keyof StrictManifest> &
+  ChromiumManifest &
+  StrictManifest
+
+function generateManifest() {
   const manifest: MV3 = {
     manifest_version: 3,
     name: 'Webext Storage',
@@ -45,3 +54,8 @@ export function getManifest() {
 
   return manifest
 }
+
+console.log('write manifest')
+fsExta.writeJSONSync(r('dist/dev/manifest.json'), generateManifest(), {
+  spaces: 2,
+})
