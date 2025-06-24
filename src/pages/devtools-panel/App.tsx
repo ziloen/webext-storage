@@ -1,6 +1,6 @@
 import { listenEvent } from '@ziloen/webext-utils'
 import clsx from 'clsx'
-import { noop } from 'lodash-es'
+import { noop } from 'es-toolkit'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createContext, useContextSelector } from 'use-context-selector'
 import { useGetState, useLatest, useMemoizedFn } from '~/hooks'
