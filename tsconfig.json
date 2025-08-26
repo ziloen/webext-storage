@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
+    "rootDir": "./",
     "composite": true,
-    "baseUrl": "./",
     "outDir": "./dist",
     "jsx": "react-jsx",
     "module": "ESNext",
@@ -39,7 +39,7 @@
     ],
     "paths": {
       "~/*": [
-        "src/*"
+        "./src/*"
       ],
       "~cwd/*": [
         "./*"
