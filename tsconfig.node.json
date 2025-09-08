@@ -16,10 +16,5 @@
     "*.js",
     "*.ts",
     "scripts",
-  ],
-  "references": [
-    {
-      "path": "./tsconfig.json"
-    }
   ]
 }
