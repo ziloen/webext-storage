@@ -1,14 +1,15 @@
 import type { Storage } from 'webextension-polyfill'
+import Browser from 'webextension-polyfill'
 
 export async function evalFn<Args extends unknown[], Return>(
-  closure: (chrome: typeof browser, ...args: Args) => Return,
+  closure: (ext: typeof browser, ...args: Args) => Return,
   ...args: NoInfer<Args>
 ) {
-  const code = `(${closure.toString()})(chrome, ${args
+  const code = `(${closure.toString()})(globalThis.browser || globalThis.chrome, ${args
     .map((_) => JSON.stringify(_))
     .join(', ')})`
 
-  const result = await browser.devtools.inspectedWindow.eval(code)
+  const result = await Browser.devtools.inspectedWindow.eval(code)
   const value = result[0] as Return
   const info = result[1]
 
@@ -19,12 +20,12 @@ export async function evalFn<Args extends unknown[], Return>(
   return value
 }
 
-function extensionPageInject(chrome: typeof browser, runtimeId: string) {
-  const port = chrome.runtime.connect(runtimeId, { name: 'storage' })
+function extensionPageInject(ext: typeof browser, runtimeId: string) {
+  const port = ext.runtime.connect(runtimeId, { name: 'storage' })
 
   try {
-    if (chrome.storage) {
-      chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (ext.storage) {
+      ext.storage.onChanged.addListener((changes, areaName) => {
         port.postMessage({
           type: 'changed',
           data: { changes, areaName },
@@ -43,7 +44,7 @@ function extensionPageInject(chrome: typeof browser, runtimeId: string) {
 
     try {
       // @ts-expect-error just ignore it
-      const result = await chrome.storage[areaName][method](...args)
+      const result = await ext.storage[areaName][method](...args)
       port.postMessage({
         type: 'forward-storage',
         data: result,

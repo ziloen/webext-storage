@@ -47,14 +47,14 @@ export function App() {
   }, [])
 
   const loadInitialData = useMemoizedFn(async () => {
-    const extensionId = await evalFn((chrome) => {
+    const extensionId = await evalFn((ext) => {
       const location = document.location
       if (
         !location ||
         location.protocol === 'chrome-extension:' ||
         location.protocol === 'moz-extension:'
       ) {
-        return chrome.runtime.id
+        return ext.runtime.id
       }
 
       return

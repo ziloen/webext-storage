@@ -1,6 +1,6 @@
 import fsExta from 'fs-extra'
 import type { Manifest } from 'webextension-polyfill'
-import { isDev, isFirefoxEnv, r } from './utils.js'
+import { isDev, isFirefoxEnv, outDir, r } from './utils.js'
 
 type ChromiumPermissions = 'sidePanel'
 type Permissions =
@@ -44,7 +44,7 @@ function generateManifest() {
   if (isFirefoxEnv) {
     manifest.browser_specific_settings = {
       gecko: {
-        id: '[ID]',
+        id: '@webext-storage.dev',
         strict_min_version: '115.0',
       },
     }
@@ -56,6 +56,6 @@ function generateManifest() {
 }
 
 console.log('write manifest')
-fsExta.writeJSONSync(r('dist/dev/manifest.json'), generateManifest(), {
+fsExta.writeJSONSync(r(outDir, 'manifest.json'), generateManifest(), {
   spaces: 2,
 })

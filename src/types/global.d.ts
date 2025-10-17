@@ -1,1 +1,1 @@
-const browser: typeof import('webextension-polyfill')
+declare var browser: typeof import('webextension-polyfill')

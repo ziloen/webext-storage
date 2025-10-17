@@ -5,14 +5,13 @@ import stylePlugin from 'esbuild-style-plugin'
 import fsExtra from 'fs-extra'
 import { execSync } from 'node:child_process'
 import AutoImport from 'unplugin-auto-import/esbuild'
-import { isDev, isFirefoxEnv, r } from './utils.js'
+import { isDev, isFirefoxEnv, outDir, r } from './utils.js'
 
 /**
  * @import { BuildOptions, Plugin } from 'esbuild'
  */
 
 const cwd = process.cwd()
-const outdir = r('dist/dev')
 
 /**
  * @type {BuildOptions}
@@ -39,7 +38,7 @@ const options = {
   bundle: true,
   assetNames: 'assets/[name]-[hash]',
   outbase: 'src',
-  outdir: outdir,
+  outdir: outDir,
   keepNames: isDev,
   drop: isDev ? [] : ['console', 'debugger'],
   logLevel: 'info',
@@ -63,9 +62,9 @@ const options = {
     CopyPlugin({
       resolveFrom: 'cwd',
       assets: [
-        { from: 'public/**/*', to: 'dist/dev' },
-        { from: 'src/pages/**/*.html', to: 'dist/dev/pages' },
-        { from: 'src/devtools/index.html', to: 'dist/dev/devtools' },
+        { from: 'public/**/*', to: outDir },
+        { from: 'src/pages/**/*.html', to: r(outDir, 'pages') },
+        { from: 'src/devtools/index.html', to: r(outDir, 'devtools') },
       ],
       watch: isDev,
     }),
@@ -78,8 +77,8 @@ const options = {
   ],
 }
 
-fsExtra.ensureDirSync(outdir)
-fsExtra.emptyDirSync(outdir)
+fsExtra.ensureDirSync(outDir)
+fsExtra.emptyDirSync(outDir)
 writeManifest()
 
 if (isDev) {
