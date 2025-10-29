@@ -36,6 +36,7 @@
     "webextension-polyfill": "0.12.0"
   },
   "dependencies": {
+    "@wai-ri/core": "0.0.108",
     "@ziloen/webext-utils": "0.0.5",
     "axios": "1.13.1",
     "clsx": "2.1.1",
@@ -50,6 +51,7 @@
     "rxjs": "8.0.0-alpha.14",
     "serialize-error": "12.0.0",
     "typed-webext": "0.7.5",
-    "use-context-selector": "2.0.0"
+    "use-context-selector": "2.0.0",
+    "uuid": "13.0.0"
   }
 }

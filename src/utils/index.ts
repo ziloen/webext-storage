@@ -1,8 +1,10 @@
+import { asType } from '@wai-ri/core'
+import { v7 } from 'uuid'
 import type { Storage } from 'webextension-polyfill'
 import Browser from 'webextension-polyfill'
 
 export async function evalFn<Args extends unknown[], Return>(
-  closure: (ext: typeof browser, ...args: Args) => Return,
+  closure: (ext: typeof Browser, ...args: Args) => Return,
   ...args: NoInfer<Args>
 ) {
   const code = `(${closure.toString()})(globalThis.browser || globalThis.chrome, ${args
@@ -20,7 +22,7 @@ export async function evalFn<Args extends unknown[], Return>(
   return value
 }
 
-function extensionPageInject(ext: typeof browser, runtimeId: string) {
+function extensionPageInject(ext: typeof Browser, runtimeId: string) {
   const port = ext.runtime.connect(runtimeId, { name: 'storage' })
 
   try {
@@ -64,7 +66,7 @@ export async function getProxyStorage(
   extensionId: string,
 ): Promise<Storage.Static> {
   return new Promise((resolve, reject) => {
-    browser.runtime.onConnectExternal.addListener((port) => {
+    Browser.runtime.onConnectExternal.addListener((port) => {
       if (port.sender?.id !== extensionId) return
 
       const deferMap = new Map<string, PromiseWithResolvers<unknown>>()
@@ -82,7 +84,14 @@ export async function getProxyStorage(
         session: new Set<ChangedCallback>(),
       }
 
-      port.onMessage.addListener((message: any) => {
+      port.onMessage.addListener((message) => {
+        asType<{
+          type: string
+          id: string
+          data?: unknown
+          error?: string
+        }>(message)
+
         if (message.type === 'forward-storage') {
           const id = message.id
           const defer = deferMap.get(id)
@@ -105,41 +114,38 @@ export async function getProxyStorage(
         }
       })
 
-      const proxyStorage = new Proxy({} as Storage.Static, {
+      const proxyStorage = new Proxy(Object.create(null) as Storage.Static, {
         get(_, areaName: AreaName) {
-          return new Proxy(
-            {},
-            {
-              get(_, method) {
-                if (method === 'onChanged') {
-                  return {
-                    addListener(listener: ChangedCallback) {
-                      listenersMap[areaName]?.add(listener)
-                    },
-                    removeListener(listener: ChangedCallback) {
-                      listenersMap[areaName]?.delete(listener)
-                    },
-                  }
+          return new Proxy(Object.create(null) as Storage.StorageArea, {
+            get(_, method) {
+              if (method === 'onChanged') {
+                return {
+                  addListener(listener: ChangedCallback) {
+                    listenersMap[areaName]?.add(listener)
+                  },
+                  removeListener(listener: ChangedCallback) {
+                    listenersMap[areaName]?.delete(listener)
+                  },
                 }
+              }
 
-                return function (...args: unknown[]) {
-                  const defer = Promise.withResolvers()
-                  const id = crypto.randomUUID()
+              return function (...args: unknown[]) {
+                const defer = Promise.withResolvers()
+                const id = v7()
 
-                  deferMap.set(id, defer)
-                  port.postMessage({ areaName, method, args, id })
+                deferMap.set(id, defer)
+                port.postMessage({ areaName, method, args, id })
 
-                  return defer.promise
-                }
-              },
+                return defer.promise
+              }
             },
-          )
+          })
         },
       })
 
       resolve(proxyStorage)
     })
 
-    evalFn(extensionPageInject, browser.runtime.id)
+    evalFn(extensionPageInject, Browser.runtime.id)
   })
 }

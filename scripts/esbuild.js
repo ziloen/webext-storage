@@ -4,8 +4,7 @@ import { copy as CopyPlugin } from 'esbuild-plugin-copy'
 import stylePlugin from 'esbuild-style-plugin'
 import fsExtra from 'fs-extra'
 import { execSync } from 'node:child_process'
-import AutoImport from 'unplugin-auto-import/esbuild'
-import { isDev, isFirefoxEnv, outDir, r } from './utils.js'
+import { isDev, outDir, r } from './utils.js'
 
 /**
  * @import { BuildOptions, Plugin } from 'esbuild'
@@ -46,19 +45,6 @@ const options = {
     '.woff2': 'file',
   },
   plugins: [
-    AutoImport({
-      include: [
-        /\.[tj]sx?$/, // .ts, .tsx, .js, .jsx
-      ],
-      imports: [
-        {
-          'webextension-polyfill': [['default', 'browser']],
-        },
-      ],
-      dts: r('src/types/auto-imports.d.ts'),
-      ignoreDts: ['browser'],
-    }),
-
     CopyPlugin({
       resolveFrom: 'cwd',
       assets: [

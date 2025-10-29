@@ -524,6 +524,7 @@ const regexPatterns = [
 
 /**
  * 如果带有 mongodb 的 ObjectId，或者是 uuid v4 的字符，返回相同的 key
+ * TODO: support uuid v7
  * @example
  * ```ts
  * const key1 = getNormalizedIdKey('key:60c72b2f9b1e8c001c8e4d3a')
