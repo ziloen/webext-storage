@@ -3,6 +3,7 @@ import clsx from 'clsx'
 import { noop } from 'es-toolkit'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createContext, useContextSelector } from 'use-context-selector'
+import type { Storage } from 'webextension-polyfill'
 import { useGetState, useLatest, useMemoizedFn } from '~/hooks'
 import { CarbonChevronRight, CodiconCollapseAll } from '~/icons'
 import { evalFn, getProxyStorage } from '~/utils'
@@ -42,6 +43,12 @@ export function App() {
 
   const [bytesInUse, setBytesInUse] = useState(0)
 
+  const [bytesInUseByKey, setBytesInUseByKey] = useState(
+    new Map<string, number>(),
+  )
+
+  const proxyStorageRef = useRef<Storage.Static | null>(null)
+
   useEffect(() => {
     loadInitialData()
   }, [])
@@ -62,6 +69,8 @@ export function App() {
 
     if (!extensionId) return
     const storage = await getProxyStorage(extensionId)
+
+    proxyStorageRef.current = storage
 
     storage.local
       .get(null)
@@ -148,6 +157,19 @@ export function App() {
     setExpandedKeys(nextExpandedKeys)
   })
 
+  const onPointerEnterKey = useMemoizedFn((key: string) => {
+    const storage = proxyStorageRef.current
+    if (!storage) return
+
+    storage.local.getBytesInUse?.(key).then((bytes) => {
+      setBytesInUseByKey((pre) => {
+        const next = new Map(pre)
+        next.set(key, bytes)
+        return next
+      })
+    })
+  })
+
   const keysReactNode = useMemo(() => {
     if (!targetState) return null
 
@@ -155,6 +177,8 @@ export function App() {
 
     const seenIdKeys = new Set<string>()
     for (const [key, value] of Object.entries(targetState)) {
+      const bytesInUse = bytesInUseByKey.get(value.key)
+
       if (value.normalizedKey) {
         const expanded = expandedKeys.has(value.normalizedKey)
 
@@ -164,8 +188,10 @@ export function App() {
             <KeyDisplay
               key={value.key}
               property={value.key}
+              bytesInUse={bytesInUse}
               normalizedKey={value.normalizedKey}
               onToggleExpand={onToggleExpand}
+              onPointerEnter={() => onPointerEnterKey(value.key)}
               value={value.value}
               expanded={expanded}
               indent={0}
@@ -176,11 +202,13 @@ export function App() {
             <KeyDisplay
               key={value.key}
               property={value.key}
+              bytesInUse={bytesInUse}
               value={value.value}
               expanded={undefined}
               indent={1}
               normalizedKey={value.normalizedKey}
               onToggleExpand={onToggleExpand}
+              onPointerEnter={() => onPointerEnterKey(value.key)}
             />,
           )
         }
@@ -193,14 +221,16 @@ export function App() {
             expanded={undefined}
             indent={0}
             normalizedKey={value.normalizedKey}
+            bytesInUse={bytesInUse}
             onToggleExpand={onToggleExpand}
+            onPointerEnter={() => onPointerEnterKey(value.key)}
           />,
         )
       }
     }
 
     return result
-  }, [targetState, expandedKeys])
+  }, [targetState, expandedKeys, bytesInUseByKey])
 
   return (
     <CtxProvider modifiedKeys={highlightKeys}>
@@ -250,7 +280,7 @@ function formatBytes(bytes: number) {
     n++
   }
 
-  return `${bytes.toFixed(2)}${labels[n] ?? 'B'}`
+  return `${parseFloat(bytes.toFixed(2))}${labels[n] ?? 'B'}`
 }
 
 function KeyDisplay({
@@ -259,14 +289,18 @@ function KeyDisplay({
   expanded,
   normalizedKey,
   indent,
+  bytesInUse,
   onToggleExpand,
+  onPointerEnter,
 }: {
   property: string
   normalizedKey: string | null
   value: unknown
   expanded: boolean | undefined
   indent: number
+  bytesInUse?: number | undefined
   onToggleExpand: (property: string) => void
+  onPointerEnter: () => void
 }) {
   const searchValue = useContextSelector(Ctx, (ctx) => ctx.searchValue)
 
@@ -310,6 +344,7 @@ function KeyDisplay({
         expanded && 'sticky top-0',
       )}
       data-status={status}
+      onPointerEnter={onPointerEnter}
     >
       <div
         className={clsx(
@@ -341,6 +376,12 @@ function KeyDisplay({
         )}
 
         {property}
+
+        {!!bytesInUse && (
+          <span className="text-light-gray-900 ms-2 text-xs">
+            {formatBytes(bytesInUse)}
+          </span>
+        )}
       </div>
       {/* <div>{value}</div> */}
     </div>

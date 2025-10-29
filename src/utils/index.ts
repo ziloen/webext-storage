@@ -60,8 +60,10 @@ function extensionPageInject(ext: typeof browser, runtimeId: string) {
   })
 }
 
-export async function getProxyStorage(extensionId: string) {
-  return new Promise<Storage.Static>((resolve, reject) => {
+export async function getProxyStorage(
+  extensionId: string,
+): Promise<Storage.Static> {
+  return new Promise((resolve, reject) => {
     browser.runtime.onConnectExternal.addListener((port) => {
       if (port.sender?.id !== extensionId) return
 
