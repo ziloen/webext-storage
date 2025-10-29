@@ -111,6 +111,14 @@ export function App() {
                 timeout,
               ])
             })
+
+            storage.local.getBytesInUse?.(key).then((bytes) => {
+              setBytesInUseByKey((pre) => {
+                const next = new Map(pre)
+                next.set(key, bytes)
+                return next
+              })
+            })
           } else {
             // Deleted
             setHighlightKeys((pre) => {
@@ -157,9 +165,11 @@ export function App() {
     setExpandedKeys(nextExpandedKeys)
   })
 
-  const onPointerEnterKey = useMemoizedFn((key: string) => {
+  const getBytesIfNeeded = useMemoizedFn((key: string) => {
     const storage = proxyStorageRef.current
+
     if (!storage) return
+    if (bytesInUseByKey.has(key)) return
 
     storage.local.getBytesInUse?.(key).then((bytes) => {
       setBytesInUseByKey((pre) => {
@@ -191,7 +201,7 @@ export function App() {
               bytesInUse={bytesInUse}
               normalizedKey={value.normalizedKey}
               onToggleExpand={onToggleExpand}
-              onPointerEnter={() => onPointerEnterKey(value.key)}
+              getBytesIfNeeded={getBytesIfNeeded}
               value={value.value}
               expanded={expanded}
               indent={0}
@@ -208,7 +218,7 @@ export function App() {
               indent={1}
               normalizedKey={value.normalizedKey}
               onToggleExpand={onToggleExpand}
-              onPointerEnter={() => onPointerEnterKey(value.key)}
+              getBytesIfNeeded={getBytesIfNeeded}
             />,
           )
         }
@@ -223,7 +233,7 @@ export function App() {
             normalizedKey={value.normalizedKey}
             bytesInUse={bytesInUse}
             onToggleExpand={onToggleExpand}
-            onPointerEnter={() => onPointerEnterKey(value.key)}
+            getBytesIfNeeded={getBytesIfNeeded}
           />,
         )
       }
@@ -291,7 +301,7 @@ function KeyDisplay({
   indent,
   bytesInUse,
   onToggleExpand,
-  onPointerEnter,
+  getBytesIfNeeded,
 }: {
   property: string
   normalizedKey: string | null
@@ -300,7 +310,7 @@ function KeyDisplay({
   indent: number
   bytesInUse?: number | undefined
   onToggleExpand: (property: string) => void
-  onPointerEnter: () => void
+  getBytesIfNeeded: (property: string) => void
 }) {
   const searchValue = useContextSelector(Ctx, (ctx) => ctx.searchValue)
 
@@ -344,7 +354,7 @@ function KeyDisplay({
         expanded && 'sticky top-0',
       )}
       data-status={status}
-      onPointerEnter={onPointerEnter}
+      onPointerEnter={() => getBytesIfNeeded(property)}
     >
       <div
         className={clsx(
